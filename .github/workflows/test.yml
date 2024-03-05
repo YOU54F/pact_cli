@@ -1,0 +1,89 @@
+name: CICD
+
+on:
+  pull_request:
+    branches:
+    - '*'
+  push:
+    branches:
+    - main
+
+jobs:
+  build:
+    name: "🛠️ Build binaries"
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        job:
+          - { target: x86_64-apple-darwin      , suffix: ""  , os: macos-14                   }
+          - { target: aarch64-apple-darwin      , suffix: ""  , os: macos-14                   }
+          - { target: x86_64-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-unknown-linux-musl , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: aarch64-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: aarch64-unknown-linux-musl , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: arm-unknown-linux-gnueabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: arm-unknown-linux-gnueabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: arm-unknown-linux-musleabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: arm-unknown-linux-musleabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv7-unknown-linux-gnueabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv7-unknown-linux-gnueabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv7-unknown-linux-musleabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv7-unknown-linux-musleabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: i586-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: i686-unknown-linux-gnu , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-unknown-netbsd , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-unknown-freebsd , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv5te-unknown-linux-gnueabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv5te-unknown-linux-musleabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: arm-linux-androideabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: armv7-linux-androideabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: aarch64-linux-android , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: i686-linux-android , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-linux-android , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: thumbv7neon-linux-androideabi , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: thumbv7neon-unknown-linux-gnueabihf , suffix: ""    , os: ubuntu-latest, use-cross: true }
+          - { target: x86_64-pc-windows-msvc , suffix: ""    , os: windows-latest }
+          - { target: aarch64-pc-windows-msvc , suffix: ""    , os: windows-latest }
+          - { target: i686-pc-windows-msvc , suffix: ""    , os: windows-latest }
+          - { target: x86_64-pc-windows-gnu , suffix: ""    , os: windows-latest }
+    runs-on: ${{matrix.job.os}}
+    steps:
+    - uses: actions/checkout@v3
+    #   with:
+    #       lfs: true
+    #       fetch-depth: 0
+    #       ref: ${{ github.event.pull_request.head.sha }}
+    - name: Install Rust Toolchain Components
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        target: ${{ matrix.job.target }}
+        toolchain: stable
+    - name: Build
+      if: ${{ matrix.job.use-cross != true }}
+      run: cargo build --bin clap_cli${{ matrix.job.suffix }} --release --target=${{ matrix.job.target }}
+    - name: Build
+      if: ${{ matrix.job.use-cross == true }}
+      run: |
+        cargo install cross@0.2.5
+        cross build --bin clap_cli${{ matrix.job.suffix }} --release --target=${{ matrix.job.target }}
+    - name: Test
+      run: cargo test --release --bin clap_cli${{ matrix.job.suffix }} --target=${{ matrix.job.target }}
+    - name: Create dist
+      id: dist
+      shell: bash
+      run: |
+        EXECUTABLE="target/${{ matrix.job.target }}/release/clap_cli${{ matrix.job.suffix }}"
+        BINARY_NAME="clap_cli_${{ matrix.job.target }}${{ matrix.job.suffix }}"
+        BINARY_PATH="dist/${BINARY_NAME}"
+        mkdir -p "dist/"
+        # Binary
+        cp "${EXECUTABLE}" "${BINARY_PATH}"
+        echo "BINARY_NAME=${BINARY_NAME}" >> $GITHUB_OUTPUT
+        echo "BINARY_PATH=${BINARY_PATH}" >> $GITHUB_OUTPUT
+    - uses: actions/upload-artifact@master
+      with:
+        name: ${{ matrix.job.target }}
+        path: dist/

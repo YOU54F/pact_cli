@@ -1,0 +1,19 @@
+[package]
+name = "clap_cli"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "3.1", features = ["derive"] }
+
+[dev-dependencies]
+expectest = "0.12.0"
+trycmd = "0.15.0"
+
+[profile.release]
+strip = true  # Automatically strip symbols from the binary.
+opt-level = "z"  # Optimize for size.
+codegen-units = 1
+panic = "abort"
