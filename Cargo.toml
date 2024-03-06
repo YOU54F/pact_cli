@@ -17,3 +17,9 @@ strip = true  # Automatically strip symbols from the binary.
 opt-level = "z"  # Optimize for size.
 codegen-units = 1
 panic = "abort"
+
+[profile.release-aarch64-freebsd]
+inherits = "release"
+panic = "unwind"
+# if panic abort is set for aarch64 freebsd, it fails in cross
+# https://github.com/cross-rs/cross/issues/1363#issuecomment-1783917450
