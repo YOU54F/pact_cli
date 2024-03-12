@@ -1,11 +1,14 @@
-use app1::App1Args;
-use app2::App2Args;
+// use std::collections::HashMap;
+
+use std::f32::consts::E;
+// use std::result::Result::Ok
+use anyhow::Ok;
 use clap::{Parser, Subcommand};
-mod app1;
-mod app2;
+mod pact_broker;
+mod pactflow;
 #[derive(Parser, Debug)]
 #[clap(author = "Author Name", version, about)]
-/// A Very simple App with multiple subcommands
+/// Pact CLI
 struct Arguments {
     #[clap(subcommand)]
     cmd: SubCommand,
@@ -13,28 +16,28 @@ struct Arguments {
 
 #[derive(Subcommand, Debug)]
 enum SubCommand {
-    /// Run app 1
-    App1(App1Args),
-    /// Run app 1
-    App2(App2Args),
+    // Pact
+    PactBroker(pact_broker::PactBrokerArguments),
+    // PactFlow
+    Pactflow(pactflow::PactflowArguments),
 }
 
 fn main() {
     let args = Arguments::parse();
     match args.cmd {
-        SubCommand::App1(args) => match app1::subcommand1(args) {
-            Ok(c) => println!("you provided {} to app1", c),
-            Err(e) => {
-                eprintln!("error in processing : {}", e);
-                std::process::exit(1)
-            }
-        },
-        SubCommand::App2(args) => match app2::subcommand2(args) {
-            Ok(c) => println!("you provided {} to app2", c),
-            Err(e) => {
-                eprintln!("error in processing : {}", e);
-                std::process::exit(1)
-            }
-        },
+        SubCommand::PactBroker(_args) => {
+            match _args.cmd {
+                pact_broker::PactBrokerSubCommand::Publish(args) => {
+                    let result = pact_broker::publish_pact::main(args);
+                    print!("{:?}", result);
+            }}
+        }
+        SubCommand::Pactflow(_args) => {
+            match _args.cmd {
+                pactflow::PactflowSubCommand::PublishProviderContract(args) => {
+                    let result = pactflow::publish_provider_contract::main(args);
+                    print!("{:?}", result);
+            }}
+        }
     }
 }

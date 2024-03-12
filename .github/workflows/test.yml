@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  BINARY_APP_NAME: clap_cli
+  BINARY_APP_NAME: pact_cli
 jobs:
   build:
     name: '🛠️ Build binaries'
