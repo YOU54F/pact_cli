@@ -1,0 +1,10 @@
+Disable a plugin version
+
+Usage: pact-plugin-cli disable <NAME> [VERSION]
+
+Arguments:
+  <NAME>     Plugin name
+  [VERSION]  Plugin version. Not required if there is only one plugin version
+
+Options:
+  -h, --help  Print help

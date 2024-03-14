@@ -1,0 +1,56 @@
+[package]
+name = "pact-plugin-cli"
+version = "0.1.2"
+edition = "2021"
+authors = ["Ronald Holshausen <ronald.holshausen@smartbear.com>"]
+description = "CLI utility for Pact plugins"
+homepage = "http://www.pact.io"
+repository = "https://github.com/pact-foundation/pact-plugins"
+readme = "README.md"
+keywords = ["pact"]
+license = "MIT"
+exclude = [
+    "*.iml"
+]
+
+[dependencies]
+pact-plugin-driver = { version = "0.5.2", path = "../drivers/rust/driver" }
+clap = { version = "4.4.11", features = [ "derive", "cargo" ] }
+comfy-table = "7.1.0"
+home = "0.5.5"
+anyhow = "1.0.75"
+serde = { version = "1.0.193", features = [ "derive" ] }
+serde_json = "1.0.108"
+itertools = "0.12.0"
+requestty = "0.5.0"
+reqwest = { version = "0.11.22", default-features = false, features = ["rustls-tls-native-roots", "json", "stream"] }
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1.37"
+tracing-subscriber = "0.3.16"
+chrono = { version = "0.4.31", features = ["serde"]}
+toml = "0.8.8"
+url = "2.5.0"
+
+[dev-dependencies]
+trycmd = "0.14.19"
+tempfile = "3.8.1"
+expectest = "0.12.0"
+test-log = "0.2.14"
+env_logger = "0.10.1"
+
+[profile.release]
+strip = true  # Automatically strip symbols from the binary.
+opt-level = "z"  # Optimize for size.
+codegen-units = 1
+panic = "abort"
+# lto = true
+# https://github.com/johnthagen/min-sized-rust
+
+## Original Sizes
+#  24M    libpact_ffi.dylib
+#  19M    pact_verifier_cli
+#  18M    pact_mock_server_cli
+
+# libpactffi.dylib size 24M -> 9.4M
+# pact_verifier_cli size 19M -> 6.4M
+# pact_mock_server_cli size 19M -> 5.6M

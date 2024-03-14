@@ -1,0 +1,11 @@
+Remove a plugin
+
+Usage: pact-plugin-cli remove [OPTIONS] <NAME> [VERSION]
+
+Arguments:
+  <NAME>     Plugin name
+  [VERSION]  Plugin version. Not required if there is only one plugin version
+
+Options:
+  -y, --yes   Automatically answer Yes for all prompts
+  -h, --help  Print help

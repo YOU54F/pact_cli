@@ -1,0 +1,76 @@
+{
+  "provider": {
+    "name": "test_provider"
+  },
+  "consumer": {
+    "name": "test_consumer"
+  },
+  "interactions": [
+    {
+      "providerState": "test state",
+      "description": "test interaction",
+      "request": {
+        "method": "POST",
+        "path": "/",
+        "body": {
+          "complete": {
+            "certificateUri": "http://...",
+            "issues": {
+              "idNotFound": {}
+            },
+            "nevdis": {
+              "body": null,
+              "colour": null,
+              "engine": null
+            },
+            "body": 123456
+          },
+          "body": [
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "_id": "1234jj58-kk49-3383-vvvv-1234rrrr5678",
+          "desc": "Response 1",
+          "date": "2000-01-01"
+        },
+        "generators": {
+          "body": {
+            "$._id": {"type": "Uuid"},
+            "$.date": {"type": "Date"}
+          }
+        }
+      }
+    },
+    {
+      "providerState": "test state",
+      "description": "test interaction 2",
+      "request": {
+        "method": "POST",
+        "path": "/",
+        "body": {
+          "a": 1,
+          "b": 2,
+          "c": 3
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": "Response 2"
+      }
+    }
+  ],
+  "metadata": {
+    "pact-specification": {
+      "version": "2.0.0"
+    },
+    "pact-jvm": {
+      "version": ""
+    }
+  }
+}
