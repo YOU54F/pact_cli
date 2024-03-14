@@ -44,6 +44,14 @@ Arguments:
   [PACT_DIRS_OR_FILES]  Pact directories or files
 
 Options:
+  -b, --broker-base-url <PACT_BROKER_BASE_URL>
+          The base URL of the Pact Broker [env: PACT_BROKER_BASE_URL=]
+  -u, --broker-username <PACT_BROKER_USERNAME>
+          Pact Broker basic auth username [env: PACT_BROKER_USERNAME=]
+  -p, --broker-password <PACT_BROKER_PASSWORD>
+          Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
+  -k, --broker-token <PACT_BROKER_TOKEN>
+          Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
   -a, --consumer-app-version <consumer-app-version>
           The consumer application version
       --branch <branch>
@@ -58,16 +66,8 @@ Options:
           The build URL that created the pact
       --merge
           If a pact already exists for this consumer version and provider, merge the contents. Useful when running Pact tests concurrently on different build nodes.
-  -o, --output <output>
-          json or text [possible values: json, text]
-  -b, --broker-base-url <PACT_BROKER_BASE_URL>
-          The base URL of the Pact Broker [env: PACT_BROKER_BASE_URL=]
-  -u, --broker-username <PACT_BROKER_USERNAME>
-          Pact Broker basic auth username [env: PACT_BROKER_USERNAME=]
-  -p, --broker-password <PACT_BROKER_PASSWORD>
-          Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
-  -k, --broker-token <PACT_BROKER_TOKEN>
-          Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
+  -o, --output <OUTPUT>
+          json or text [default: text] [possible values: json, text]
   -v, --verbose
           Verbose output.
   -h, --help
@@ -94,10 +94,10 @@ Options:
           Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
   -k, --broker-token <PACT_BROKER_TOKEN>
           Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -o, --output <OUTPUT>
-          json or table [default: table] [possible values: json, table]
+          json or text [default: text] [possible values: json, text]
   -h, --help
           Print help
 
@@ -136,7 +136,7 @@ Options:
           Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
   -k, --broker-token <PACT_BROKER_TOKEN>
           Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -176,7 +176,7 @@ Options:
           Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
   -k, --broker-token <PACT_BROKER_TOKEN>
           Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -206,7 +206,7 @@ Options:
           Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
   -k, --broker-token <PACT_BROKER_TOKEN>
           Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -236,7 +236,7 @@ Options:
           Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
   -k, --broker-token <PACT_BROKER_TOKEN>
           Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -264,7 +264,7 @@ Options:
           Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
   -k, --broker-token <PACT_BROKER_TOKEN>
           Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -300,7 +300,7 @@ Options:
           Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
   -k, --broker-token <PACT_BROKER_TOKEN>
           Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -334,7 +334,7 @@ Options:
           Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
   -k, --broker-token <PACT_BROKER_TOKEN>
           Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -373,7 +373,7 @@ Options:
           Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
   -k, --broker-token <PACT_BROKER_TOKEN>
           Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -388,7 +388,7 @@ Record release of a pacticipant version to an environment. See See https://docs.
 $ pact_cli pact-broker record-support-ended --help
 Record the end of support for a pacticipant version in an environment.
 
-Usage: pact_cli pact-broker record-support-ended [OPTIONS] --pacticipant <PACTICIPANT> --version <VERSION> --environment <ENVIRONMENT>
+Usage: pact_cli pact-broker record-support-ended [OPTIONS] --pacticipant <PACTICIPANT> --version <VERSION> --environment <ENVIRONMENT> --broker-base-url <PACT_BROKER_BASE_URL>
 
 Options:
   -a, --pacticipant <PACTICIPANT>
@@ -399,13 +399,15 @@ Options:
           The name of the environment in which the support is ended.
   -o, --output <OUTPUT>
           json or text [default: text] [possible values: json, text]
-  -u, --broker-username <BROKER_USERNAME>
-          Pact Broker basic auth username
-  -p, --broker-password <BROKER_PASSWORD>
-          Pact Broker basic auth password
-  -k, --broker-token <BROKER_TOKEN>
-          Pact Broker bearer token
-  -v, --verbose <verbose>
+  -b, --broker-base-url <PACT_BROKER_BASE_URL>
+          The base URL of the Pact Broker [env: PACT_BROKER_BASE_URL=]
+  -u, --broker-username <PACT_BROKER_USERNAME>
+          Pact Broker basic auth username [env: PACT_BROKER_USERNAME=]
+  -p, --broker-password <PACT_BROKER_PASSWORD>
+          Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
+  -k, --broker-token <PACT_BROKER_TOKEN>
+          Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -442,7 +444,7 @@ Options:
       --to <TAG>
           The tag that represents the branch or environment of the integrated applications for which you want to check the verification result status.
   -o, --output <OUTPUT>
-          json or table [default: table] [possible values: json, table]
+          json or text [default: text] [possible values: json, text]
       --retry-while-unknown <TIMES>
           The number of times to retry while there is an unknown verification result (ie. the provider verification is likely still running)
       --retry-interval <SECONDS>
@@ -457,7 +459,7 @@ Options:
           Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
   -k, --broker-token <PACT_BROKER_TOKEN>
           Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -510,21 +512,9 @@ appropriate values for your pipeline.
 $ pact_cli pact-broker can-i-merge --help
 Checks if the specified pacticipant version is compatible with the configured main branch of each of the pacticipants with which it is integrated.
 
-Usage: pact_cli pact-broker can-i-merge [OPTIONS] --pacticipant [<PACTICIPANT>] --broker-base-url <PACT_BROKER_BASE_URL>
+Usage: pact_cli pact-broker can-i-merge [OPTIONS] --broker-base-url <PACT_BROKER_BASE_URL> --pacticipant [<PACTICIPANT>]
 
 Options:
-  -a, --pacticipant [<PACTICIPANT>]
-          The pacticipant name. Use once for each pacticipant being checked.
-  -e, --version <VERSION>
-          The pacticipant version. Must be entered after the --pacticipant that it relates to.
-  -o, --output <OUTPUT>
-          json or table [default: table] [possible values: json, table]
-      --retry-while-unknown <TIMES>
-          The number of times to retry while there is an unknown verification result (ie. the provider verification is likely still running) [default: 0]
-      --retry-interval <SECONDS>
-          The time between retries in seconds. Use in conjuction with --retry-while-unknown [default: 10]
-      --dry-run <dry-run>
-          When dry-run is enabled, always exit process with a success code. Can also be enabled by setting the environment variable PACT_BROKER_CAN_I_MERGE_DRY_RUN=true. This mode is useful when setting up your CI/CD pipeline for the first time, or in a 'break glass' situation where you need to knowingly deploy what Pact considers a breaking change. For the second scenario, it is recommended to use the environment variable and just set it for the build required to deploy that particular version, so you don't accidentally leave the dry run mode enabled.
   -b, --broker-base-url <PACT_BROKER_BASE_URL>
           The base URL of the Pact Broker [env: PACT_BROKER_BASE_URL=]
   -u, --broker-username <PACT_BROKER_USERNAME>
@@ -533,7 +523,19 @@ Options:
           Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
   -k, --broker-token <PACT_BROKER_TOKEN>
           Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -a, --pacticipant [<PACTICIPANT>]
+          The pacticipant name. Use once for each pacticipant being checked.
+  -e, --version <VERSION>
+          The pacticipant version. Must be entered after the --pacticipant that it relates to.
+  -o, --output <OUTPUT>
+          json or text [default: text] [possible values: json, text]
+      --retry-while-unknown <TIMES>
+          The number of times to retry while there is an unknown verification result (ie. the provider verification is likely still running) [default: 0]
+      --retry-interval <SECONDS>
+          The time between retries in seconds. Use in conjuction with --retry-while-unknown [default: 10]
+      --dry-run <dry-run>
+          When dry-run is enabled, always exit process with a success code. Can also be enabled by setting the environment variable PACT_BROKER_CAN_I_MERGE_DRY_RUN=true. This mode is useful when setting up your CI/CD pipeline for the first time, or in a 'break glass' situation where you need to knowingly deploy what Pact considers a breaking change. For the second scenario, it is recommended to use the environment variable and just set it for the build required to deploy that particular version, so you don't accidentally leave the dry run mode enabled.
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -551,9 +553,17 @@ Description:
 $ pact_cli pact-broker create-or-update-pacticipant --help
 Create or update pacticipant by name
 
-Usage: pact_cli pact-broker create-or-update-pacticipant [OPTIONS] --name <NAME> --broker-base-url <PACT_BROKER_BASE_URL>
+Usage: pact_cli pact-broker create-or-update-pacticipant [OPTIONS] --broker-base-url <PACT_BROKER_BASE_URL> --name <NAME>
 
 Options:
+  -b, --broker-base-url <PACT_BROKER_BASE_URL>
+          The base URL of the Pact Broker [env: PACT_BROKER_BASE_URL=]
+  -u, --broker-username <PACT_BROKER_USERNAME>
+          Pact Broker basic auth username [env: PACT_BROKER_USERNAME=]
+  -p, --broker-password <PACT_BROKER_PASSWORD>
+          Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
+  -k, --broker-token <PACT_BROKER_TOKEN>
+          Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
       --name <NAME>
           Pacticipant name
       --display-name <DISPLAY_NAME>
@@ -564,15 +574,7 @@ Options:
           The repository URL of the pacticipant
   -o, --output <OUTPUT>
           json or text [default: text] [possible values: json, text]
-  -b, --broker-base-url <PACT_BROKER_BASE_URL>
-          The base URL of the Pact Broker [env: PACT_BROKER_BASE_URL=]
-  -u, --broker-username <PACT_BROKER_USERNAME>
-          Pact Broker basic auth username [env: PACT_BROKER_USERNAME=]
-  -p, --broker-password <PACT_BROKER_PASSWORD>
-          Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
-  -k, --broker-token <PACT_BROKER_TOKEN>
-          Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -587,17 +589,25 @@ Create or update pacticipant by name
 $ pact_cli pact-broker describe-pacticipant --help
 Describe a pacticipant
 
-Usage: pact_cli pact-broker describe-pacticipant [OPTIONS] --name <NAME> --broker-base-url <BROKER_BASE_URL>
+Usage: pact_cli pact-broker describe-pacticipant [OPTIONS] --broker-base-url <PACT_BROKER_BASE_URL> --name <NAME>
 
 Options:
-      --name <NAME>                        Pacticipant name
-  -o, --output <OUTPUT>                    json or text [default: text] [possible values: json, text]
-  -b, --broker-base-url <BROKER_BASE_URL>  The base URL of the Pact Broker
-  -u, --broker-username <BROKER_USERNAME>  Pact Broker basic auth username
-  -p, --broker-password <BROKER_PASSWORD>  Pact Broker basic auth password
-  -k, --broker-token <BROKER_TOKEN>        Pact Broker bearer token
-  -v, --verbose <verbose>                  Verbose output.
-  -h, --help                               Print help
+  -b, --broker-base-url <PACT_BROKER_BASE_URL>
+          The base URL of the Pact Broker [env: PACT_BROKER_BASE_URL=]
+  -u, --broker-username <PACT_BROKER_USERNAME>
+          Pact Broker basic auth username [env: PACT_BROKER_USERNAME=]
+  -p, --broker-password <PACT_BROKER_PASSWORD>
+          Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
+  -k, --broker-token <PACT_BROKER_TOKEN>
+          Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
+      --name <NAME>
+          Pacticipant name
+  -o, --output <OUTPUT>
+          json or text [default: text] [possible values: json, text]
+  -v, --verbose
+          Verbose output.
+  -h, --help
+          Print help
 
 ```
 
@@ -609,16 +619,23 @@ Describe a pacticipant
 $ pact_cli pact-broker list-pacticipants --help
 List pacticipants
 
-Usage: pact_cli pact-broker list-pacticipants [OPTIONS] --broker-base-url <BROKER_BASE_URL>
+Usage: pact_cli pact-broker list-pacticipants [OPTIONS] --broker-base-url <PACT_BROKER_BASE_URL>
 
 Options:
-  -b, --broker-base-url <BROKER_BASE_URL>  The base URL of the Pact Broker
-  -o, --output <OUTPUT>                    json or text [default: text] [possible values: json, text]
-  -u, --broker-username <BROKER_USERNAME>  Pact Broker basic auth username
-  -p, --broker-password <BROKER_PASSWORD>  Pact Broker basic auth password
-  -k, --broker-token <BROKER_TOKEN>        Pact Broker bearer token
-  -v, --verbose <verbose>                  Verbose output.
-  -h, --help                               Print help
+  -b, --broker-base-url <PACT_BROKER_BASE_URL>
+          The base URL of the Pact Broker [env: PACT_BROKER_BASE_URL=]
+  -u, --broker-username <PACT_BROKER_USERNAME>
+          Pact Broker basic auth username [env: PACT_BROKER_USERNAME=]
+  -p, --broker-password <PACT_BROKER_PASSWORD>
+          Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
+  -k, --broker-token <PACT_BROKER_TOKEN>
+          Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
+  -o, --output <OUTPUT>
+          json or text [default: text] [possible values: json, text]
+  -v, --verbose
+          Verbose output.
+  -h, --help
+          Print help
 
 ```
 
@@ -678,7 +695,7 @@ Options:
           Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
   -k, --broker-token <PACT_BROKER_TOKEN>
           Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -698,12 +715,20 @@ Description:
 $ pact_cli pact-broker create-or-update-webhook --help
 Create or update a webhook
 
-Usage: pact_cli pact-broker create-or-update-webhook [OPTIONS] --uuid <UUID> --broker-base-url <PACT_BROKER_BASE_URL> <URL>
+Usage: pact_cli pact-broker create-or-update-webhook [OPTIONS] --broker-base-url <PACT_BROKER_BASE_URL> --uuid <UUID> <URL>
 
 Arguments:
   <URL>  Webhook URL
 
 Options:
+  -b, --broker-base-url <PACT_BROKER_BASE_URL>
+          The base URL of the Pact Broker [env: PACT_BROKER_BASE_URL=]
+  -u, --broker-username <PACT_BROKER_USERNAME>
+          Pact Broker basic auth username [env: PACT_BROKER_USERNAME=]
+  -p, --broker-password <PACT_BROKER_PASSWORD>
+          Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
+  -k, --broker-token <PACT_BROKER_TOKEN>
+          Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
       --uuid <UUID>
           Specify the uuid for the webhook
   -X, --request <METHOD>
@@ -738,15 +763,7 @@ Options:
           Trigger this webhook when a contract is published that requires verification
       --team-uuid <UUID>
           UUID of the PactFlow team to which the webhook should be assigned (PactFlow only)
-  -b, --broker-base-url <PACT_BROKER_BASE_URL>
-          The base URL of the Pact Broker [env: PACT_BROKER_BASE_URL=]
-  -u, --broker-username <PACT_BROKER_USERNAME>
-          Pact Broker basic auth username [env: PACT_BROKER_USERNAME=]
-  -p, --broker-password <PACT_BROKER_PASSWORD>
-          Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
-  -k, --broker-token <PACT_BROKER_TOKEN>
-          Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -780,7 +797,7 @@ Options:
           Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
   -k, --broker-token <PACT_BROKER_TOKEN>
           Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
-  -v, --verbose <verbose>
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
@@ -797,17 +814,25 @@ Test the execution of a webhook
 $ pact_cli pact-broker delete-branch --help
 Deletes a pacticipant branch. Does not delete the versions or pacts/verifications associated with the branch, but does make the pacts inaccessible for verification via consumer versions selectors or WIP pacts.
 
-Usage: pact_cli pact-broker delete-branch [OPTIONS] --branch <BRANCH> --pacticipant <PACTICIPANT> --broker-base-url <BROKER_BASE_URL>
+Usage: pact_cli pact-broker delete-branch [OPTIONS] --broker-base-url <PACT_BROKER_BASE_URL> --branch <BRANCH> --pacticipant <PACTICIPANT>
 
 Options:
-      --branch <BRANCH>                    The pacticipant branch name
-  -a, --pacticipant <PACTICIPANT>          The name of the pacticipant that the branch belongs to
-  -b, --broker-base-url <BROKER_BASE_URL>  The base URL of the Pact Broker
-  -u, --broker-username <BROKER_USERNAME>  Pact Broker basic auth username
-  -p, --broker-password <BROKER_PASSWORD>  Pact Broker basic auth password
-  -k, --broker-token <BROKER_TOKEN>        Pact Broker bearer token
-  -v, --verbose <verbose>                  Verbose output.
-  -h, --help                               Print help
+  -b, --broker-base-url <PACT_BROKER_BASE_URL>
+          The base URL of the Pact Broker [env: PACT_BROKER_BASE_URL=]
+  -u, --broker-username <PACT_BROKER_USERNAME>
+          Pact Broker basic auth username [env: PACT_BROKER_USERNAME=]
+  -p, --broker-password <PACT_BROKER_PASSWORD>
+          Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
+  -k, --broker-token <PACT_BROKER_TOKEN>
+          Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
+      --branch <BRANCH>
+          The pacticipant branch name
+  -a, --pacticipant <PACTICIPANT>
+          The name of the pacticipant that the branch belongs to
+  -v, --verbose
+          Verbose output.
+  -h, --help
+          Print help
 
 ```
 
@@ -855,7 +880,7 @@ Options:
   -a, --pacticipant <PACTICIPANT>  The name of the pacticipant that the version belongs to
   -e, --version <VERSION>          The pacticipant version number
   -l, --latest <TAG>               Describe the latest pacticipant version. Optionally specify a TAG to describe the latest version with the specified tag
-  -o, --output <OUTPUT>            json or table or id [default: table] [possible values: json, table, id]
+  -o, --output <OUTPUT>            json or text [default: text] [possible values: json, text]
   -h, --help                       Print help
 
 ```
@@ -907,18 +932,24 @@ Generate a UUID for use when calling create-or-update-webhook
 $ pact_cli pactflow publish-provider-contract --help
 Publish provider contract to PactFlow
 
-Usage: pact_cli pactflow publish-provider-contract [OPTIONS] --provider-app-version <PROVIDER_APP_VERSION> --broker-base-url <BROKER_BASE_URL> <CONTRACT_FILE>
+Usage: pact_cli pactflow publish-provider-contract [OPTIONS] --broker-base-url <PACT_BROKER_BASE_URL> --provider-app-version <PROVIDER_APP_VERSION> <CONTRACT_FILE>
 
 Arguments:
   <CONTRACT_FILE>  The contract file(s)
 
 Options:
+  -b, --broker-base-url <PACT_BROKER_BASE_URL>
+          The base URL of the Pact Broker [env: PACT_BROKER_BASE_URL=]
+  -u, --broker-username <PACT_BROKER_USERNAME>
+          Pact Broker basic auth username [env: PACT_BROKER_USERNAME=]
+  -p, --broker-password <PACT_BROKER_PASSWORD>
+          Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
+  -k, --broker-token <PACT_BROKER_TOKEN>
+          Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
       --provider <PROVIDER>
           The provider name
   -a, --provider-app-version <PROVIDER_APP_VERSION>
           The provider application version
-  -b, --broker-base-url <BROKER_BASE_URL>
-          The base URL of the Pact Broker
       --branch <BRANCH>
           Repository branch of the provider version
   -t, --tag [<TAG>]
@@ -944,14 +975,8 @@ Options:
       --build-url <BUILD_URL>
           The build URL that created the provider contract
   -o, --output <OUTPUT>
-          json or text [default: text]
-  -u, --broker-username <BROKER_USERNAME>
-          Pact Broker basic auth username
-  -p, --broker-password <BROKER_PASSWORD>
-          Pact Broker basic auth password
-  -k, --broker-token <BROKER_TOKEN>
-          Pact Broker bearer token
-  -v, --verbose <verbose>
+          json or text [default: text] [possible values: json, text]
+  -v, --verbose
           Verbose output.
   -h, --help
           Print help
