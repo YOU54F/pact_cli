@@ -1,6 +1,7 @@
 name: Rust
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "ci" ]
   pull_request:
