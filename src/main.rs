@@ -1,17 +1,111 @@
 // use std::collections::HashMap;
 mod cli;
 use clap_complete::{generate_to, Shell};
-use pact_broker::{pact_broker::{HALClient, Link, PactBrokerError, links_from_json}};
+use pact_broker::{HALClient, Link, PactBrokerError};
 use serde_json::Value;
-// mod pact_broker::pact_broker::HALClient::Link;
 use std::str::FromStr;
 mod pact_broker;
-use pact_models::http_utils::HttpAuth;
 use maplit::hashmap;
-// use futures::executor::block_on;
-use futures::stream::*;
-use pact_models::pact::{load_pact_from_json, Pact};
-use tabled::{builder::Builder, settings::Style, Table};
+use pact_models::http_utils::HttpAuth;
+use tabled::{builder::Builder, settings::Style};
+
+fn get_broker_url(args: &clap::ArgMatches) -> String {
+    args.get_one::<String>("broker-base-url")
+        .expect("url is required")
+        .to_string()
+}
+// setup client with broker url and credentials
+fn get_auth(args: &clap::ArgMatches) -> HttpAuth {
+    let token = args.try_get_one::<String>("broker-token");
+    let username = args.try_get_one::<String>("broker-username");
+    let password = args.try_get_one::<String>("broker-password");
+    let auth;
+
+    match token {
+        Ok(Some(token)) => {
+            auth = HttpAuth::Token(token.to_string());
+        }
+        Ok(None) => match username {
+            Ok(Some(username)) => match password {
+                Ok(Some(password)) => {
+                    auth = HttpAuth::User(username.to_string(), Some(password.to_string()));
+                }
+                Ok(None) => {
+                    auth = HttpAuth::User(username.to_string(), None);
+                }
+                Err(_) => todo!(),
+            },
+            Ok(None) => {
+                auth = HttpAuth::None;
+            }
+            Err(_) => todo!(),
+        },
+        Err(_) => todo!(),
+    }
+
+    auth
+}
+
+async fn get_broker_relation(
+    hal_client: HALClient,
+    relation: String,
+    broker_url: String,
+) -> String {
+    let index_res: Result<Value, PactBrokerError> = hal_client.clone().fetch("/").await;
+    let index_res_clone = index_res.clone().unwrap();
+    index_res_clone
+        .get("_links")
+        .unwrap()
+        .get(relation)
+        .unwrap()
+        .get("href")
+        .unwrap()
+        .to_string()
+        .split(&broker_url)
+        .collect::<Vec<&str>>()[1]
+        .to_string()
+        .replace("\"", "")
+        .to_string()
+}
+
+async fn follow_broker_relation(
+    hal_client: HALClient,
+    relation: String,
+    relation_href: String,
+) -> Result<Value, PactBrokerError> {
+    let link = Link {
+        name: relation,
+        href: Some(relation_href),
+        templated: false,
+        title: None,
+    };
+    let template_values = hashmap! {};
+    hal_client.fetch_url(&link, &template_values).await
+}
+
+fn generate_table(res: &Value, columns: Vec<&str>, names:  Vec<Vec<&str>>) {
+    let mut builder = Builder::default();
+    builder.push_record(columns);
+
+    if let Some(items) = res.get("pacts").unwrap().as_array() {
+        for item in items {
+            let mut values = vec![item; names.len()];
+
+            for (i, name) in names.iter().enumerate() {
+                for n in name.clone() {
+                    values[i] = values[i].get(n).unwrap();
+                }
+            }
+
+            let records: Vec<String> = values.iter().map(|v| v.to_string()).collect();
+            builder.push_record(records.as_slice());
+        }
+    }
+    let mut table = builder.build();
+    table.with(Style::rounded());
+
+    println!("{:#}", table);
+}
 
 #[tokio::main]
 pub async fn main() {
@@ -26,84 +120,64 @@ pub async fn main() {
                 }
                 Some(("list-latest-pact-versions", args)) => {
                     // Handle list-latest-pact-versions command
-                    let broker_url: String = args.get_one::<String>("broker-base-url").expect("url is required").to_string();
-                    let token = args.try_get_one::<String>("broker-token");
-                    let username = args.try_get_one::<String>("broker-username");
-                    let password = args.try_get_one::<String>("broker-password");
-                    let output = args.try_get_one::<String>("output");
 
-                    let auth;
-                    match token {
-                        Ok(Some(token)) => {
-                            auth = HttpAuth::Token(token.to_string());
-                        }
-                        Ok(None) => {
-                            match username {
-                                Ok(Some(username)) => {
-                                    // auth = HttpAuth::User(username.clone().expect("username required"), None);
+                    // setup client with broker url and credentials
+                    let broker_url = get_broker_url(args);
+                    let auth = get_auth(args);
+                    // query pact broker index and get hal relation link
+                    let hal_client: HALClient =
+                        HALClient::with_url(&broker_url, Some(auth.clone()));
+                    let pb_latest_pact_versions_href_path = get_broker_relation(
+                        hal_client.clone(),
+                        "pb:latest-pact-versions".to_string(),
+                        broker_url,
+                    )
+                    .await;
+                    // query the hal relation link to get the latest pact versions
+                    let res = follow_broker_relation(
+                        hal_client.clone(),
+                        "pb:latest-pact-versions".to_string(),
+                        pb_latest_pact_versions_href_path,
+                    )
+                    .await;
 
-                                    match password {
-                                        Ok(Some(password)) => {
-                                            auth = HttpAuth::User(username.to_string(), Some(password.to_string()));
-                                        }
-                                        Ok(None) => {
-                                            auth = HttpAuth::User(username.to_string(), None);
-                                        }
-                                        Err(_) => todo!()
-                                    }
-                                }
-                                Ok(None) => {
-                                    auth = HttpAuth::None;
-                                }
-                                Err(_) => todo!()
-                            }
-                            // auth = HttpAuth::None;
-                        }
-                        Err(_) => todo!()
-                    }
+                    // handle user args for additional processing
+                    let output: Result<Option<&String>, clap::parser::MatchesError> =
+                        args.try_get_one::<String>("output");
 
-                    let mut hal_client: HALClient = HALClient::with_url(&broker_url, Some(auth));
-                    // TODO - follow link without href
-                    let link = Link { name: "pb:latest-pact-versions".to_string(), href: Some("/pacts/latest".to_string()), templated: false, title: None };
-                    // let link = Link { name: "pb:latest-pact-versions".to_string(), href: Some("/pacts/latest".to_string()), templated: false, title: None };
-                    let template_values = hashmap!{};
-                    let res: Result<Value, PactBrokerError> = hal_client.fetch_url(&link, &template_values).await;
+                    // render result
                     match output {
                         Ok(Some(output)) => {
                             if output == "json" {
-                                let json: String = serde_json::to_string(&res.clone().unwrap()).unwrap();
+                                let json: String = serde_json::to_string(&res.unwrap()).unwrap();
                                 println!("{}", json);
                             } else if output == "table" {
                                 if let Ok(res) = res {
-                                    let mut builder = Builder::default();
-                                    builder.push_record(["CONSUMER", "CONSUMER_VERSION", "PROVIDER", "CREATED_AT"]);
+                                    generate_table(
+                                        &res,
+                                        vec![
+                                            "CONSUMER",
+                                            "CONSUMER_VERSION",
+                                            "PROVIDER",
+                                            "CREATED_AT",
+                                        ],
+                                        vec![
+                                            vec!["_embedded", "consumer", "name"],
+                                            vec!["_embedded", "consumer", "_embedded", "version", "number"],
+                                            vec!["_embedded", "provider", "name"],
+                                            vec!["createdAt"],
+                                        ],
 
- 
-                                    if let Some(items) = res.get("pacts").unwrap().as_array() {
-                                        for item in items {
-                                            let consumer = &item["_embedded"]["consumer"]["name"].to_string();
-                                            let consumer_version = &item["_embedded"]["consumer"]["_embedded"]["version"]["number"].to_string();
-                                            let provider = &item["_embedded"]["provider"]["name"].to_string();
-                                            let created_at = &item["createdAt"].to_string();
-                                            builder.push_record([consumer, consumer_version, provider, created_at]);
-                                        }
-                                    }
-                                    let mut table = builder.build();
-                                    table.with(Style::rounded());
-                                    
-                                    println!("{:#}", table);
+                                    );
+    
                                 }
                             }
                         }
                         Ok(None) => {
                             println!("{:?}", res.clone());
                         }
-                        Err(_) => todo!()
+                        Err(_) => todo!(),
                     }
-
-
-
-    
                 }
                 Some(("create-environment", args)) => {
                     // Handle create-environment command
@@ -153,6 +227,16 @@ pub async fn main() {
                     // Handle create-or-update-pacticipant command
                     // Ok(());
                 }
+                
+                Some(("describe-pacticipant", args)) => {
+                    // Handle describe-pacticipants command
+                    // Ok(());
+                }
+                Some(("list-pacticipants", args)) => {
+                    // Handle list-pacticipants command
+                    // Ok(());
+                }                
+                
                 Some(("create-webhook", args)) => {
                     // Handle create-webhook command
                     // Ok(());
@@ -163,9 +247,31 @@ pub async fn main() {
                 }
                 Some(("test-webhook", args)) => {
                     // Handle test-webhook command
-                
+
                     // Ok(());
                 }
+
+                Some(("delete-branch", args)) => {
+                    // Handle delete-branch command
+                    // Ok(());
+                }
+                Some(("create-version-tag", args)) => {
+                    // Handle create-version-tag command
+                    // Ok(());
+                }
+                Some(("describe-version", args)) => {
+                    // Handle describe-version command
+                    // Ok(());
+                }
+                Some(("create-or-update-version", args)) => {
+                    // Handle create-or-update-version command
+                    // Ok(());
+                }
+                Some(("generate-uuid", args)) => {
+                    // Handle generate-uuid command
+                    // Ok(());
+                }
+                
                 _ => {
                     println!("⚠️  No option provided, try running pact-broker --help");
 
@@ -186,16 +292,23 @@ pub async fn main() {
                     // Ok(());
                 }
             }
-
-
         }
         Some(("completions", args)) => {
             let mut cmd = cli::build_cli();
-            let shell: String = args.get_one::<String>("shell").expect("a shell is required").to_string();
-            let out_dir: String = args.get_one::<String>("dir").expect("a directory is expected").to_string();
+            let shell: String = args
+                .get_one::<String>("shell")
+                .expect("a shell is required")
+                .to_string();
+            let out_dir: String = args
+                .get_one::<String>("dir")
+                .expect("a directory is expected")
+                .to_string();
             let shell_enum = Shell::from_str(&shell).unwrap();
             let _ = generate_to(shell_enum, &mut cmd, "pact_cli".to_string(), &out_dir);
-            print!("ℹ️  {} shell completions for pact_cli written to {}", &shell_enum, &out_dir);
+            print!(
+                "ℹ️  {} shell completions for pact_cli written to {}",
+                &shell_enum, &out_dir
+            );
 
             // Ok(());
         }
@@ -206,4 +319,3 @@ pub async fn main() {
         }
     }
 }
-
