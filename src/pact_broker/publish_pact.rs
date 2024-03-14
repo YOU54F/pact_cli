@@ -13,32 +13,28 @@ use pact_cli::setup_loggers;
 
 #[derive(Debug, Args)]
 pub struct PactPublisherArgs {
-    #[clap(short='l', long="loglevel", takes_value=true, use_delimiter=false, possible_values=&["error", "warn", "info", "debug", "trace", "none"], help="Log level (defaults to warn)")]
+    #[clap(short='l', long="loglevel", value_parser=clap::builder::PossibleValuesParser::new(&["error", "warn", "info", "debug", "trace", "none"]), help="Log level (defaults to warn)")]
     loglevel: Option<String>,
 
     #[clap(
         short = 'b',
         long = "broker-base-url",
-        takes_value = true,
-        use_delimiter = false,
         number_of_values = 1,
-        empty_values = false,
-        required = false,
+        value_parser = clap::builder::NonEmptyStringValueParser::new(),
+        required = true,
         env = "PACT_BROKER_BASE_URL",
-        help = "The base URL of your Pact Broker"
+        help = "The base URL of your Pact Broker - can be set with the environment variable PACT_BROKER_BASE_URL"
     )]
     broker_base_url: Option<String>,
 
         #[clap(
         // short = 't',
         long = "broker-token",
-        takes_value = true,
-        use_delimiter = false,
         number_of_values = 1,
-        empty_values = false,
+        value_parser = clap::builder::NonEmptyStringValueParser::new(),
         required = false,
         env = "PACT_BROKER_TOKEN",
-        help = "Bearer token to use to publish with"
+        help = "Bearer token to use to publish with - can be set with the environment variable PACT_BROKER_TOKEN"
     )]
     broker_token: Option<String>,
 
@@ -48,10 +44,11 @@ pub struct PactPublisherArgs {
 
 
 pub fn main(args: PactPublisherArgs) -> Result<(), i32> {
-    let log_level = args.loglevel;
+    let log_level = args.loglevel.clone();
     if let Err(err) = setup_loggers(&log_level.unwrap_or("warn".to_string())) {
         eprintln!("WARN: Could not setup loggers: {}", err);
         eprintln!();
     }
+    print!("Pact Publisher Args: {:?}", args);
     Ok(())
 }

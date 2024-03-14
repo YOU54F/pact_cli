@@ -5,6 +5,8 @@ use log::{LevelFilter, SetLoggerError};
 use simplelog::{ColorChoice, Config, TerminalMode, TermLogger};
 
 pub mod verification;
+mod cli;
+// mod utils;
 pub fn setup_loggers(level: &str) -> Result<(), SetLoggerError> {
   let log_level = match level {
     "none" => LevelFilter::Off,

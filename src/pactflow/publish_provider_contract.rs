@@ -13,55 +13,50 @@ use pact_cli::setup_loggers;
 
 #[derive(Debug, Args)]
 pub struct PublishProviderContractArgs {
-    #[clap(short='l', long="loglevel", takes_value=true, use_delimiter=false, possible_values=&["error", "warn", "info", "debug", "trace", "none"], help="Log level (defaults to warn)")]
+    #[clap(short='l', long="loglevel", value_parser=clap::builder::PossibleValuesParser::new(&["error", "warn", "info", "debug", "trace", "none"]), help="Log level (defaults to warn)")]
     loglevel: Option<String>,
- 
     #[clap(
         // short = 'b',
-        long = "contentFile",
+        long = "content-file",
         required = true,
-        takes_value = true,
-        use_delimiter = false,
+        num_args = 1,
         number_of_values = 1,
-        empty_values = false,
+        value_parser = clap::builder::NonEmptyStringValueParser::new(),
         help = "Provider specification to publish"
     )]
-    contentFile: Option<String>,
+    content_file: Option<String>,
 
     #[clap(
         short = 'b',
         long = "broker-base-url",
-        takes_value = true,
-        use_delimiter = false,
+        num_args = 1,
         number_of_values = 1,
-        empty_values = false,
+        value_parser = clap::builder::NonEmptyStringValueParser::new(),
         required = true,
         env = "PACT_BROKER_BASE_URL",
-        help = "The base URL of your Pactflow account"
+        help = "The base URL of your Pact Broker - can be set with the environment variable PACT_BROKER_BASE_URL"
     )]
     broker_base_url: Option<String>,
 
         #[clap(
         // short = 't',
         long = "broker-token",
-        takes_value = true,
-        use_delimiter = false,
+        num_args = 1,
         number_of_values = 1,
-        empty_values = false,
-        required = true,
+        value_parser = clap::builder::NonEmptyStringValueParser::new(),
+        required = false,
         env = "PACT_BROKER_TOKEN",
-        help = "Bearer token to use to publish with"
+        help = "Bearer token to use to publish with - can be set with the environment variable PACT_BROKER_TOKEN"
     )]
-    broker_token: String,
+    broker_token: Option<String>,
 
     
 #[clap(
     short = 'p',
     long = "provider",
-    takes_value = true,
-    use_delimiter = false,
+    num_args = 1,
     number_of_values = 1,
-    empty_values = false,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = true,
     help = "The provider name"
 )]
@@ -70,10 +65,9 @@ provider: String,
 #[clap(
     short = 'a',
     long = "provider_app_version",
-    takes_value = true,
-    use_delimiter = false,
+    num_args = 1,
     number_of_values = 1,
-    empty_values = false,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = true,
     // aliases = "-a",
     help = "The provider application version"
@@ -82,10 +76,9 @@ provider_app_version: String,
 
 #[clap(
     long = "branch",
-    takes_value = true,
-    use_delimiter = false,
+    num_args = 1,
     number_of_values = 1,
-    empty_values = false,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = false,
     alias = "h",
     help = "Repository branch of the provider version"
@@ -95,22 +88,19 @@ branch: Option<String>,
 #[clap(
     short = 't',
     long = "tag",
-    takes_value = true,
-    empty_values = false,
-    use_delimiter = false,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = false,
     alias = "t",
-    multiple = true,
+    num_args = 0..=1,
     help = "Tag name for provider version. Can be specified multiple times (eg. --tag v1 --tag v2)"
 )]
 tag: Option<Vec<String>>,
 
 #[clap(
     long = "specification",
-    takes_value = true,
-    use_delimiter = false,
+    num_args = 1,
     number_of_values = 1,
-    empty_values = false,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = false,
     default_value = "oas",
     help = "The contract specification"
@@ -119,10 +109,9 @@ specification: String,
 
 #[clap(
     long = "content_type",
-    takes_value = true,
-    use_delimiter = false,
+    num_args = 1,
     number_of_values = 1,
-    empty_values = false,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = false,
     help = "The content type. eg. application/yml"
 )]
@@ -130,7 +119,9 @@ content_type: Option<String>,
 
 #[clap(
     long = "verification_success",
-    takes_value = false,
+    num_args = 1,
+    number_of_values = 1,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = false,
     help = "Whether or not the self verification passed successfully."
 )]
@@ -138,10 +129,9 @@ verification_success: bool,
 
 #[clap(
     long = "verification_exit_code",
-    takes_value = true,
-    use_delimiter = false,
+    num_args = 1,
     number_of_values = 1,
-    empty_values = false,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = false,
     help = "The exit code of the verification process. Can be used instead of --verification-success|--no-verification-success for a simpler build script."
 )]
@@ -149,10 +139,9 @@ verification_exit_code: Option<u32>,
 
 #[clap(
     long = "verification_results",
-    takes_value = true,
-    use_delimiter = false,
+    num_args = 1,
     number_of_values = 1,
-    empty_values = false,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = false,
     help = "The path to the file containing the output from the verification process"
 )]
@@ -160,10 +149,9 @@ verification_results: Option<String>,
 
 #[clap(
     long = "verification_results_content_type",
-    takes_value = true,
-    use_delimiter = false,
+    num_args = 1,
     number_of_values = 1,
-    empty_values = false,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = false,
     help = "The content type of the verification output eg. text/plain, application/yaml"
 )]
@@ -171,10 +159,9 @@ verification_results_content_type: Option<String>,
 
 #[clap(
     long = "verification_results_format",
-    takes_value = true,
-    use_delimiter = false,
+    num_args = 1,
     number_of_values = 1,
-    empty_values = false,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = false,
     help = "The format of the verification output eg. junit, text"
 )]
@@ -182,10 +169,9 @@ verification_results_format: Option<String>,
 
 #[clap(
     long = "verifier",
-    takes_value = true,
-    use_delimiter = false,
+    num_args = 1,
     number_of_values = 1,
-    empty_values = false,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = false,
     help = "The tool used to verify the provider contract"
 )]
@@ -193,10 +179,9 @@ verifier: Option<String>,
 
 #[clap(
     long = "verifier_version",
-    takes_value = true,
-    use_delimiter = false,
+    num_args = 1,
     number_of_values = 1,
-    empty_values = false,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = false,
     help = "The version of the tool used to verify the provider contract"
 )]
@@ -204,10 +189,9 @@ verifier_version: Option<String>,
 
 #[clap(
     long = "build_url",
-    takes_value = true,
-    use_delimiter = false,
+    num_args = 1,
     number_of_values = 1,
-    empty_values = false,
+    value_parser = clap::builder::NonEmptyStringValueParser::new(),
     required = false,
     help = "The build URL that created the provider contract"
 )]
@@ -221,7 +205,7 @@ pub fn main(args: PublishProviderContractArgs) -> Result<(), i32> {
         eprintln!("WARN: Could not setup loggers: {}", err);
         eprintln!();
     }
-    let content_file = load_file(&args.contentFile.unwrap()).map_err(|_| 1)?;
+    let content_file = load_file(&args.content_file.unwrap()).map_err(|_| 1)?;
     println!("Content file: \n\n\n{:?}", content_file);
     Ok(())
 }
