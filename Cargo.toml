@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.5.2", features = ["derive", "env"] }
-clap_complete = "4.5.1"
+clap_complete = {version =  "4.5.1", features = [] }
 async-trait = "0.1.74"
 tabled = "0.15.0"
 base64 = "0.13.0"
@@ -24,8 +24,8 @@ simplelog = "0.12.1"
 glob = "0.3.0"
 maplit = "1.0.2"
 ansi_term = "0.12.1"
-futures = "0.3.29"
-tokio = { version = "1.35.1", features = ["full"] }
+futures = { version = "0.3.29", features = [] }
+tokio = { version = "1.35.1", features = [] }
 tracing = "0.1.40"
 tracing-core = "0.1.32"
 mime = "0.3.17"

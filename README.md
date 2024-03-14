@@ -46,7 +46,7 @@ Arguments:
 Options:
   -a, --consumer-app-version <consumer-app-version>
           The consumer application version
-  -h, --branch <branch>
+      --branch <branch>
           Repository branch of the consumer version
   -r, --auto-detect-version-properties
           Automatically detect the repository commit, branch and build URL from known CI environment variables or git CLI. Supports Buildkite, Circle CI, Travis CI, GitHub Actions, Jenkins, Hudson, AppVeyor, GitLab, CodeShip, Bitbucket and Azure DevOps.
@@ -644,7 +644,7 @@ Options:
           Webhook Header
   -d, --data <DATA>
           Webhook payload
-  -u, --user <USER>
+      --user <USER>
           Webhook basic auth username and password eg. username:password
       --consumer <CONSUMER>
           Consumer name
@@ -712,7 +712,7 @@ Options:
           Webhook Header
   -d, --data <DATA>
           Webhook payload
-  -u, --user <USER>
+      --user <USER>
           Webhook basic auth username and password eg. username:password
       --consumer <CONSUMER>
           Consumer name
@@ -797,17 +797,17 @@ Test the execution of a webhook
 $ pact_cli pact-broker delete-branch --help
 Deletes a pacticipant branch. Does not delete the versions or pacts/verifications associated with the branch, but does make the pacts inaccessible for verification via consumer versions selectors or WIP pacts.
 
-Usage: pact_cli pact-broker delete-branch [OPTIONS] ----branch <BRANCH> ----pacticipant <PACTICIPANT> ----broker-base-url <BROKER_BASE_URL>
+Usage: pact_cli pact-broker delete-branch [OPTIONS] --branch <BRANCH> --pacticipant <PACTICIPANT> --broker-base-url <BROKER_BASE_URL>
 
 Options:
-      ----branch <BRANCH>                    The pacticipant branch name
-  -a, ----pacticipant <PACTICIPANT>          The name of the pacticipant that the branch belongs to
-  -b, ----broker-base-url <BROKER_BASE_URL>  The base URL of the Pact Broker
-  -u, ----broker-username <BROKER_USERNAME>  Pact Broker basic auth username
-  -p, ----broker-password <BROKER_PASSWORD>  Pact Broker basic auth password
-  -k, ----broker-token <BROKER_TOKEN>        Pact Broker bearer token
-  -v, ----verbose <verbose>                  Verbose output.
-  -h, --help                                 Print help
+      --branch <BRANCH>                    The pacticipant branch name
+  -a, --pacticipant <PACTICIPANT>          The name of the pacticipant that the branch belongs to
+  -b, --broker-base-url <BROKER_BASE_URL>  The base URL of the Pact Broker
+  -u, --broker-username <BROKER_USERNAME>  Pact Broker basic auth username
+  -p, --broker-password <BROKER_PASSWORD>  Pact Broker basic auth password
+  -k, --broker-token <BROKER_TOKEN>        Pact Broker bearer token
+  -v, --verbose <verbose>                  Verbose output.
+  -h, --help                               Print help
 
 ```
 
@@ -821,18 +821,18 @@ Deletes a pacticipant branch. Does not delete the versions or pacts/verification
 $ pact_cli pact-broker create-version-tag --help
 Add a tag to a pacticipant version
 
-Usage: pact_cli pact-broker create-version-tag [OPTIONS] ----pacticipant <PACTICIPANT> ----version <VERSION>
+Usage: pact_cli pact-broker create-version-tag [OPTIONS] --pacticipant <PACTICIPANT> --version <VERSION>
 
 Options:
-  -a, ----pacticipant <PACTICIPANT>
+  -a, --pacticipant <PACTICIPANT>
           The pacticipant name
-  -e, ----version <VERSION>
+  -e, --version <VERSION>
           The pacticipant version
-  -t, ----tag [<TAG>]
+  -t, --tag [<TAG>]
           Tag name for pacticipant version. Can be specified multiple times
-      ----auto-create-version <auto-create-version>
+      --auto-create-version <auto-create-version>
           Automatically create the pacticipant version if it does not exist
-  -g, ----tag-with-git-branch <tag-with-git-branch>
+  -g, --tag-with-git-branch <tag-with-git-branch>
           Tag pacticipant version with the name of the current git branch
   -h, --help
           Print help
@@ -849,14 +849,14 @@ Add a tag to a pacticipant version
 $ pact_cli pact-broker describe-version --help
 Describes a pacticipant version. If no version or tag is specified, the latest version is described.
 
-Usage: pact_cli pact-broker describe-version [OPTIONS] ----pacticipant <PACTICIPANT>
+Usage: pact_cli pact-broker describe-version [OPTIONS] --pacticipant <PACTICIPANT>
 
 Options:
-  -a, ----pacticipant <PACTICIPANT>  The name of the pacticipant that the version belongs to
-  -e, ----version <VERSION>          The pacticipant version number
-  -l, ----latest <TAG>               Describe the latest pacticipant version. Optionally specify a TAG to describe the latest version with the specified tag
-  -o, ----output <OUTPUT>            json or table or id [default: table] [possible values: json, table, id]
-  -h, --help                         Print help
+  -a, --pacticipant <PACTICIPANT>  The name of the pacticipant that the version belongs to
+  -e, --version <VERSION>          The pacticipant version number
+  -l, --latest <TAG>               Describe the latest pacticipant version. Optionally specify a TAG to describe the latest version with the specified tag
+  -o, --output <OUTPUT>            json or table or id [default: table] [possible values: json, table, id]
+  -h, --help                       Print help
 
 ```
 
@@ -868,15 +868,15 @@ Describes a pacticipant version. If no version or tag is specified, the latest v
 $ pact_cli pact-broker create-or-update-version --help
 Create or update pacticipant version by version number
 
-Usage: pact_cli pact-broker create-or-update-version [OPTIONS] ----pacticipant <PACTICIPANT> ----version <VERSION>
+Usage: pact_cli pact-broker create-or-update-version [OPTIONS] --pacticipant <PACTICIPANT> --version <VERSION>
 
 Options:
-  -a, ----pacticipant <PACTICIPANT>  The pacticipant name
-  -e, ----version <VERSION>          The pacticipant version number
-      ----branch <BRANCH>            The repository branch name
-  -t, ----tag [<TAG>]                Tag name for pacticipant version. Can be specified multiple times
-  -o, ----output <OUTPUT>            json or text [default: text] [possible values: json, text]
-  -h, --help                         Print help
+  -a, --pacticipant <PACTICIPANT>  The pacticipant name
+  -e, --version <VERSION>          The pacticipant version number
+      --branch <BRANCH>            The repository branch name
+  -t, --tag [<TAG>]                Tag name for pacticipant version. Can be specified multiple times
+  -o, --output <OUTPUT>            json or text [default: text] [possible values: json, text]
+  -h, --help                       Print help
 
 ```
 
@@ -919,7 +919,7 @@ Options:
           The provider application version
   -b, --broker-base-url <BROKER_BASE_URL>
           The base URL of the Pact Broker
-  -h, --branch <BRANCH>
+      --branch <BRANCH>
           Repository branch of the provider version
   -t, --tag [<TAG>]
           Tag name for provider version. Can be specified multiple times.
