@@ -83,7 +83,7 @@ async fn follow_broker_relation(
     hal_client.fetch_url(&link, &template_values).await
 }
 
-fn generate_table(res: &Value, columns: Vec<&str>, names:  Vec<Vec<&str>>) {
+fn generate_table(res: &Value, columns: Vec<&str>, names: Vec<Vec<&str>>) {
     let mut builder = Builder::default();
     builder.push_record(columns);
 
@@ -163,13 +163,17 @@ pub async fn main() {
                                         ],
                                         vec![
                                             vec!["_embedded", "consumer", "name"],
-                                            vec!["_embedded", "consumer", "_embedded", "version", "number"],
+                                            vec![
+                                                "_embedded",
+                                                "consumer",
+                                                "_embedded",
+                                                "version",
+                                                "number",
+                                            ],
                                             vec!["_embedded", "provider", "name"],
                                             vec!["createdAt"],
                                         ],
-
                                     );
-    
                                 }
                             }
                         }
@@ -217,7 +221,72 @@ pub async fn main() {
                 }
                 Some(("can-i-deploy", args)) => {
                     // Handle can-i-deploy command
-                    // Ok(());
+                    // setup client with broker url and credentials
+                    let broker_url = get_broker_url(args);
+                    let auth = get_auth(args);
+                    // query pact broker index and get hal relation link
+                    let hal_client: HALClient =
+                        HALClient::with_url(&broker_url, Some(auth.clone()));
+                    let matrix_href_path = "/matrix?pacticipant=Example+App&latest=true&latestby=cvp&latest=true".to_string();
+                    // let matrix_href_path = "/matrix?q[][pacticipant]=Example+App&q[][latest]=true&latestby=cvp&latest=true".to_string();
+                    // query the hal relation link to get the latest pact versions
+                    let res = follow_broker_relation(
+                        hal_client.clone(),
+                        "pb:latest-pact-versions".to_string(),
+                        matrix_href_path,
+                    )
+                    .await;
+                    match res {
+                        Ok(res) => {
+                            // handle user args for additional processing
+                            let output: Result<Option<&String>, clap::parser::MatchesError> =
+                                args.try_get_one::<String>("output");
+
+                            // render result
+                            match output {
+                                Ok(Some(output)) => {
+                                    if output == "json" {
+                                        let json: String =
+                                            serde_json::to_string(&res.clone()).unwrap();
+                                        println!("{}", json);
+                                    } else if output == "table" {
+                                        generate_table(
+                                            &res,
+                                            vec![
+                                                "CONSUMER",
+                                                "CONSUMER_VERSION",
+                                                "PROVIDER",
+                                                "CREATED_AT",
+                                            ],
+                                            vec![
+                                                vec!["_embedded", "consumer", "name"],
+                                                vec![
+                                                    "_embedded",
+                                                    "consumer",
+                                                    "_embedded",
+                                                    "version",
+                                                    "number",
+                                                ],
+                                                vec!["_embedded", "provider", "name"],
+                                                vec!["createdAt"],
+                                            ],
+                                        );
+                                    }
+                                }
+                                Ok(None) => {
+                                    println!("{:?}", res.clone());
+                                }
+                                Err(res) => {
+                                    println!("{:?}", res);
+                                    // os.exit(1)
+                                }
+                            }
+                        }
+                        Err(res) => {
+                            println!("{:?}", res);
+                            // os.exit(1)
+                        }
+                    }
                 }
                 Some(("can-i-merge", args)) => {
                     // Handle can-i-merge command
@@ -227,7 +296,7 @@ pub async fn main() {
                     // Handle create-or-update-pacticipant command
                     // Ok(());
                 }
-                
+
                 Some(("describe-pacticipant", args)) => {
                     // Handle describe-pacticipants command
                     // Ok(());
@@ -235,8 +304,8 @@ pub async fn main() {
                 Some(("list-pacticipants", args)) => {
                     // Handle list-pacticipants command
                     // Ok(());
-                }                
-                
+                }
+
                 Some(("create-webhook", args)) => {
                     // Handle create-webhook command
                     // Ok(());
@@ -271,7 +340,7 @@ pub async fn main() {
                     // Handle generate-uuid command
                     // Ok(());
                 }
-                
+
                 _ => {
                     println!("⚠️  No option provided, try running pact-broker --help");
 
