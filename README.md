@@ -984,3 +984,295 @@ Options:
 ```
 
 Publish provider contract to PactFlow
+
+## Pact Plugin CLI
+
+```console
+$ pact_cli --help
+A pact cli tool
+
+Usage: pact_cli [COMMAND]
+
+Commands:
+  pact-broker  
+  pactflow     
+  completions  Generates completion scripts for your shell
+  plugin       CLI utility for Pact plugins
+  help         Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin list --help
+List the installed plugins
+
+Usage: pact_cli plugin list [COMMAND]
+
+Commands:
+  installed  List installed plugins
+  known      List known plugins
+  help       Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin list installed --help
+List installed plugins
+
+Usage: pact_cli plugin list installed
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin list known --help
+List known plugins
+
+Usage: pact_cli plugin list known [OPTIONS]
+
+Options:
+  -a, --show-all-versions <show_all_versions>  Display all versions of the known plugins
+  -h, --help                                   Print help
+
+```
+
+```console
+$ pact_cli plugin env --help
+Print out the Pact plugin environment config
+
+Usage: pact_cli plugin env
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin install --help
+Install a plugin
+
+Usage: pact_cli plugin install [OPTIONS] <SOURCE>
+
+Arguments:
+  <SOURCE>  Where to fetch the plugin files from. This should be a URL or the name of a known plugin.
+
+Options:
+  -t, --source-type <SOURCE_TYPE>
+          The type of source to fetch the plugin files from. Will default to Github releases. [possible values: github]
+  -y, --yes <yes>
+          Automatically answer Yes for all prompts
+  -s, --skip-if-installed <skip_if_installed>
+          Skip installing the plugin if the same version is already installed
+  -v, --version <VERSION>
+          The version to install. This is only used for known plugins.
+  -h, --help
+          Print help
+
+```
+
+```console
+$ pact_cli plugin remove --help
+Remove a plugin
+
+Usage: pact_cli plugin remove [OPTIONS] <name> [VERSION]
+
+Arguments:
+  <name>     Plugin name
+  [VERSION]  Plugin version. Not required if there is only one plugin version.
+
+Options:
+  -y, --yes <yes>  Automatically answer Yes for all prompts
+  -h, --help       Print help
+
+```
+
+```console
+$ pact_cli plugin enable --help
+Enable a plugin version
+
+Usage: pact_cli plugin enable <name> [VERSION]
+
+Arguments:
+  <name>     Plugin name
+  [VERSION]  Plugin version. Not required if there is only one plugin version.
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin disable --help
+Disable a plugin version
+
+Usage: pact_cli plugin disable <name> [VERSION]
+
+Arguments:
+  <name>     Plugin name
+  [VERSION]  Plugin version. Not required if there is only one plugin version.
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin repository --help
+Sub-commands for dealing with a plugin repository
+
+Usage: pact_cli plugin repository [COMMAND]
+
+Commands:
+  validate                 Check the consistency of the repository index file
+  new                      Create a new blank repository index file
+  add-plugin-version       Add a plugin version to the index file (will update existing entry)
+  add-all-plugin-versions  Add all versions of a plugin to the index file (will update existing entries)
+  yank-version             Remove a plugin version from the index file
+  list                     List all plugins found in the index file
+  list-versions            List all plugin versions found in the index file
+  help                     Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin repository validate --help
+Check the consistency of the repository index file
+
+Usage: pact_cli plugin repository validate [filename]
+
+Arguments:
+  [filename]  Filename to validate
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin repository new --help
+Create a new blank repository index file
+
+Usage: pact_cli plugin repository new [OPTIONS]
+
+Options:
+      --filename <filename>  Filename to validate
+      --overwrite             Overwrite any existing file?
+  -h, --help                 Print help
+
+```
+
+```console
+$ pact_cli plugin repository add-plugin-version --help
+Add a plugin version to the index file (will update existing entry)
+
+Usage: pact_cli plugin repository add-plugin-version [COMMAND]
+
+Commands:
+  git-hub  Add an entry for a GitHub Release to the repository file
+  file     Add an entry for a local plugin manifest file to the repository file
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin repository add-plugin-version git-hub --help
+Add an entry for a GitHub Release to the repository file
+
+Usage: pact_cli plugin repository add-plugin-version git-hub <REPOSITORY_FILE> <URL>
+
+Arguments:
+  <REPOSITORY_FILE>  Repository index file to update
+  <URL>              Base URL for GitHub APIs, will default to https://api.github.com/repos/
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin repository add-plugin-version file --help
+Add an entry for a local plugin manifest file to the repository file
+
+Usage: pact_cli plugin repository add-plugin-version file <REPOSITORY_FILE> <URL>
+
+Arguments:
+  <REPOSITORY_FILE>  Repository index file to update
+  <URL>              Base URL for GitHub APIs, will default to https://api.github.com/repos/
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin repository add-all-plugin-versions --help
+Add all versions of a plugin to the index file (will update existing entries)
+
+Usage: pact_cli plugin repository add-all-plugin-versions <REPOSITORY_FILE> <OWNER> <REPOSITORY> [base_url]
+
+Arguments:
+  <REPOSITORY_FILE>  Repository index file to update
+  <OWNER>            Repository owner to load versions from
+  <REPOSITORY>       Repository to load versions from
+  [base_url]         Base URL for GitHub APIs, will default to https://api.github.com/repos/
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin repository yank-version --help
+Remove a plugin version from the index file
+
+Usage: pact_cli plugin repository yank-version
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin list --help
+List the installed plugins
+
+Usage: pact_cli plugin list [COMMAND]
+
+Commands:
+  installed  List installed plugins
+  known      List known plugins
+  help       Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+
+```
+
+```console
+$ pact_cli plugin repository list-versions --help
+List all plugin versions found in the index file
+
+Usage: pact_cli plugin repository list-versions <FILENAME> <NAME>
+
+Arguments:
+  <FILENAME>  Filename to list versions from
+  <NAME>      Plugin entry to list versions for
+
+Options:
+  -h, --help  Print help
+
+```

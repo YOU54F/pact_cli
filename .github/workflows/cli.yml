@@ -21,5 +21,28 @@ jobs:
       run: |
         curl -LO https://github.com/YOU54F/hello_cli/releases/download/v0.0.0/pact_cli_x86_64-linux-musl
         chmod +x pact_cli_x86_64-linux-musl
+        mv pact_cli_x86_64-linux-musl pact_cli
         ./pact_cli_x86_64-linux-musl --help
-        
+        ./pact_cli --help
+        ./pact_cli pact-broker --help
+        ./pact_cli pactflow --help
+        ./pact_cli completions --help
+        ./pact_cli plugin --help
+        ./pact_cli plugin list --help
+        ./pact_cli plugin list installed --help
+        ./pact_cli plugin list known --help
+        ./pact_cli plugin env --help
+        ./pact_cli plugin install --help
+        ./pact_cli plugin remove --help
+        ./pact_cli plugin enable --help
+        ./pact_cli plugin disable --help
+        ./pact_cli plugin repository --help
+        ./pact_cli plugin validate --help
+        ./pact_cli plugin new --help
+        ./pact_cli plugin add-plugin-version --help
+        ./pact_cli plugin add-plugin-version git-hub --help
+        ./pact_cli plugin add-plugin-version file --help
+        ./pact_cli plugin add-all-plugin-versions --help
+        ./pact_cli plugin yank-version --help
+        ./pact_cli plugin list --help
+        ./pact_cli plugin list-versions --help
