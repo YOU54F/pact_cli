@@ -1,390 +1,345 @@
 // use std::collections::HashMap;
 mod cli;
+use crate::cli::pact_mock_server_cli;
+use crate::cli::pact_stub_server_cli;
+use crate::cli::pact_verifier_cli;
+use crate::cli::{pact_broker, pact_plugin_cli};
+use clap::error::ErrorKind;
+use clap::ArgMatches;
 use clap_complete::{generate_to, Shell};
-use pact_broker::{HALClient, Link, PactBrokerError};
-use serde_json::Value;
+use std::process::Command;
 use std::str::FromStr;
-mod pact_broker;
-use maplit::hashmap;
-use pact_models::http_utils::HttpAuth;
-use tabled::{builder::Builder, settings::Style};
 
-fn get_broker_url(args: &clap::ArgMatches) -> String {
-    args.get_one::<String>("broker-base-url")
-        .expect("url is required")
-        .to_string()
-}
-// setup client with broker url and credentials
-fn get_auth(args: &clap::ArgMatches) -> HttpAuth {
-    let token = args.try_get_one::<String>("broker-token");
-    let username = args.try_get_one::<String>("broker-username");
-    let password = args.try_get_one::<String>("broker-password");
-    let auth;
+pub fn main() {
+    let app = cli::build_cli();
+    let matches = app.clone().try_get_matches();
 
-    match token {
-        Ok(Some(token)) => {
-            auth = HttpAuth::Token(token.to_string());
-        }
-        Ok(None) => match username {
-            Ok(Some(username)) => match password {
-                Ok(Some(password)) => {
-                    auth = HttpAuth::User(username.to_string(), Some(password.to_string()));
-                }
-                Ok(None) => {
-                    auth = HttpAuth::User(username.to_string(), None);
-                }
-                Err(_) => todo!(),
-            },
-            Ok(None) => {
-                auth = HttpAuth::None;
+    match matches {
+        Ok(results) => {
+            match results.subcommand() {
+                Some(("pact-broker", args)) => cli::pact_broker_client::run(args),
+                Some(("pactflow", args)) => cli::pactflow_client::run(args),
+                Some(("completions", args)) => generate_completions(args),
+                Some(("standalone", args)) => cli::pact_broker_standalone::run(args),
+                Some(("examples", args)) => process_examples_command(args),
+                Some(("project", args)) => process_project_command(args),
+                Some(("docker", args)) => cli::pact_broker_docker::run(args),
+                Some(("plugin", args)) => process_plugin_command(args),
+                Some(("mock", args)) => process_mock_command(args),
+                Some(("stub", args)) => process_stub_command(args),
+                Some(("verifier", args)) => process_verifier_command(args),
+                _ => cli::build_cli().print_help().unwrap(),
             }
-            Err(_) => todo!(),
+        }
+        Err(ref err) => match err.kind() {
+            ErrorKind::DisplayHelp => {
+                let _ = err.print();
+            }
+            ErrorKind::DisplayVersion => {
+                let error_message = err.render().to_string();
+                let mock_server_match = "pact_cli-mock \n".to_string();
+                let verifier_match = "pact_cli-verifier \n".to_string();
+                let stub_server_match = "pact_cli-stub \n".to_string();
+                if verifier_match == error_message {
+                    pact_verifier_cli::main::print_version(&verifier_match);
+                    println!();
+                } else if mock_server_match == error_message {
+                    pact_mock_server_cli::main::print_version();
+                    println!();
+                } else if stub_server_match == error_message {
+                    pact_stub_server_cli::main::print_version();
+                    println!();
+                }
+            }
+            _ => err.exit(),
         },
-        Err(_) => todo!(),
     }
-
-    auth
 }
 
-async fn get_broker_relation(
-    hal_client: HALClient,
-    relation: String,
-    broker_url: String,
-) -> String {
-    let index_res: Result<Value, PactBrokerError> = hal_client.clone().fetch("/").await;
-    let index_res_clone = index_res.clone().unwrap();
-    index_res_clone
-        .get("_links")
-        .unwrap()
-        .get(relation)
-        .unwrap()
-        .get("href")
-        .unwrap()
-        .to_string()
-        .split(&broker_url)
-        .collect::<Vec<&str>>()[1]
-        .to_string()
-        .replace("\"", "")
-        .to_string()
-}
-
-async fn follow_broker_relation(
-    hal_client: HALClient,
-    relation: String,
-    relation_href: String,
-) -> Result<Value, PactBrokerError> {
-    let link = Link {
-        name: relation,
-        href: Some(relation_href),
-        templated: false,
-        title: None,
-    };
-    let template_values = hashmap! {};
-    hal_client.fetch_url(&link, &template_values).await
-}
-
-fn generate_table(res: &Value, columns: Vec<&str>, names: Vec<Vec<&str>>) {
-    let mut builder = Builder::default();
-    builder.push_record(columns);
-
-    if let Some(items) = res.get("pacts").unwrap().as_array() {
-        for item in items {
-            let mut values = vec![item; names.len()];
-
-            for (i, name) in names.iter().enumerate() {
-                for n in name.clone() {
-                    values[i] = values[i].get(n).unwrap();
-                }
-            }
-
-            let records: Vec<String> = values.iter().map(|v| v.to_string()).collect();
-            builder.push_record(records.as_slice());
+fn process_plugin_command(args: &ArgMatches) {
+    let res = pact_plugin_cli::main::run(args);
+    match res {
+        Ok(_) => {
+            std::process::exit(0);
         }
-    }
-    let mut table = builder.build();
-    table.with(Style::rounded());
-
-    println!("{:#}", table);
-}
-
-#[tokio::main]
-pub async fn main() {
-    let _m = cli::build_cli().get_matches();
-
-    match _m.subcommand() {
-        Some(("pact-broker", args)) => {
-            match args.subcommand() {
-                Some(("publish", args)) => {
-                    print!("{:?}", args);
-                    // // Ok(());
-                }
-                Some(("list-latest-pact-versions", args)) => {
-                    // Handle list-latest-pact-versions command
-
-                    // setup client with broker url and credentials
-                    let broker_url = get_broker_url(args);
-                    let auth = get_auth(args);
-                    // query pact broker index and get hal relation link
-                    let hal_client: HALClient =
-                        HALClient::with_url(&broker_url, Some(auth.clone()));
-                    let pb_latest_pact_versions_href_path = get_broker_relation(
-                        hal_client.clone(),
-                        "pb:latest-pact-versions".to_string(),
-                        broker_url,
-                    )
-                    .await;
-                    // query the hal relation link to get the latest pact versions
-                    let res = follow_broker_relation(
-                        hal_client.clone(),
-                        "pb:latest-pact-versions".to_string(),
-                        pb_latest_pact_versions_href_path,
-                    )
-                    .await;
-
-                    // handle user args for additional processing
-                    let output: Result<Option<&String>, clap::parser::MatchesError> =
-                        args.try_get_one::<String>("output");
-
-                    // render result
-                    match output {
-                        Ok(Some(output)) => {
-                            if output == "json" {
-                                let json: String = serde_json::to_string(&res.unwrap()).unwrap();
-                                println!("{}", json);
-                            } else if output == "table" {
-                                if let Ok(res) = res {
-                                    generate_table(
-                                        &res,
-                                        vec![
-                                            "CONSUMER",
-                                            "CONSUMER_VERSION",
-                                            "PROVIDER",
-                                            "CREATED_AT",
-                                        ],
-                                        vec![
-                                            vec!["_embedded", "consumer", "name"],
-                                            vec![
-                                                "_embedded",
-                                                "consumer",
-                                                "_embedded",
-                                                "version",
-                                                "number",
-                                            ],
-                                            vec!["_embedded", "provider", "name"],
-                                            vec!["createdAt"],
-                                        ],
-                                    );
-                                }
-                            }
-                        }
-                        Ok(None) => {
-                            println!("{:?}", res.clone());
-                        }
-                        Err(_) => todo!(),
-                    }
-                }
-                Some(("create-environment", args)) => {
-                    // Handle create-environment command
-                    // Ok(());
-                }
-                Some(("update-environment", args)) => {
-                    // Handle update-environment command
-                    // Ok(());
-                }
-                Some(("describe-environment", args)) => {
-                    // Handle describe-environment command
-                    // Ok(());
-                }
-                Some(("delete-environment", args)) => {
-                    // Handle delete-environment command
-                    // Ok(());
-                }
-                Some(("list-environments", args)) => {
-                    // Handle list-environments command
-                    // Ok(());
-                }
-                Some(("record-deployment", args)) => {
-                    // Handle record-deployment command
-                    // Ok(());
-                }
-                Some(("record-undeployment", args)) => {
-                    // Handle record-undeployment command
-                    // Ok(());
-                }
-                Some(("record-release", args)) => {
-                    // Handle record-release command
-                    // Ok(());
-                }
-                Some(("record-support-ended", args)) => {
-                    // Handle record-support-ended command
-                    // Ok(());
-                }
-                Some(("can-i-deploy", args)) => {
-                    // Handle can-i-deploy command
-                    // setup client with broker url and credentials
-                    let broker_url = get_broker_url(args);
-                    let auth = get_auth(args);
-                    // query pact broker index and get hal relation link
-                    let hal_client: HALClient =
-                        HALClient::with_url(&broker_url, Some(auth.clone()));
-                    let matrix_href_path = "/matrix?pacticipant=Example+App&latest=true&latestby=cvp&latest=true".to_string();
-                    // let matrix_href_path = "/matrix?q[][pacticipant]=Example+App&q[][latest]=true&latestby=cvp&latest=true".to_string();
-                    // query the hal relation link to get the latest pact versions
-                    let res = follow_broker_relation(
-                        hal_client.clone(),
-                        "pb:latest-pact-versions".to_string(),
-                        matrix_href_path,
-                    )
-                    .await;
-                    match res {
-                        Ok(res) => {
-                            // handle user args for additional processing
-                            let output: Result<Option<&String>, clap::parser::MatchesError> =
-                                args.try_get_one::<String>("output");
-
-                            // render result
-                            match output {
-                                Ok(Some(output)) => {
-                                    if output == "json" {
-                                        let json: String =
-                                            serde_json::to_string(&res.clone()).unwrap();
-                                        println!("{}", json);
-                                    } else if output == "table" {
-                                        generate_table(
-                                            &res,
-                                            vec![
-                                                "CONSUMER",
-                                                "CONSUMER_VERSION",
-                                                "PROVIDER",
-                                                "CREATED_AT",
-                                            ],
-                                            vec![
-                                                vec!["_embedded", "consumer", "name"],
-                                                vec![
-                                                    "_embedded",
-                                                    "consumer",
-                                                    "_embedded",
-                                                    "version",
-                                                    "number",
-                                                ],
-                                                vec!["_embedded", "provider", "name"],
-                                                vec!["createdAt"],
-                                            ],
-                                        );
-                                    }
-                                }
-                                Ok(None) => {
-                                    println!("{:?}", res.clone());
-                                }
-                                Err(res) => {
-                                    println!("{:?}", res);
-                                    // os.exit(1)
-                                }
-                            }
-                        }
-                        Err(res) => {
-                            println!("{:?}", res);
-                            // os.exit(1)
-                        }
-                    }
-                }
-                Some(("can-i-merge", args)) => {
-                    // Handle can-i-merge command
-                    // Ok(());
-                }
-                Some(("create-or-update-pacticipant", args)) => {
-                    // Handle create-or-update-pacticipant command
-                    // Ok(());
-                }
-
-                Some(("describe-pacticipant", args)) => {
-                    // Handle describe-pacticipants command
-                    // Ok(());
-                }
-                Some(("list-pacticipants", args)) => {
-                    // Handle list-pacticipants command
-                    // Ok(());
-                }
-
-                Some(("create-webhook", args)) => {
-                    // Handle create-webhook command
-                    // Ok(());
-                }
-                Some(("create-or-update-webhook", args)) => {
-                    // Handle create-or-update-webhook command
-                    // Ok(());
-                }
-                Some(("test-webhook", args)) => {
-                    // Handle test-webhook command
-
-                    // Ok(());
-                }
-
-                Some(("delete-branch", args)) => {
-                    // Handle delete-branch command
-                    // Ok(());
-                }
-                Some(("create-version-tag", args)) => {
-                    // Handle create-version-tag command
-                    // Ok(());
-                }
-                Some(("describe-version", args)) => {
-                    // Handle describe-version command
-                    // Ok(());
-                }
-                Some(("create-or-update-version", args)) => {
-                    // Handle create-or-update-version command
-                    // Ok(());
-                }
-                Some(("generate-uuid", args)) => {
-                    // Handle generate-uuid command
-                    // Ok(());
-                }
-
-                _ => {
-                    println!("⚠️  No option provided, try running pact-broker --help");
-
-                    // Ok(());
-                }
-            }
-        }
-        Some(("pactflow", args)) => {
-            match args.subcommand() {
-                Some(("publish-provider-contract", args)) => {
-                    print!("{:?}", args);
-
-                    // Ok(());
-                }
-                _ => {
-                    println!("⚠️  No option provided, try running pactflow --help");
-
-                    // Ok(());
-                }
-            }
-        }
-        Some(("completions", args)) => {
-            let mut cmd = cli::build_cli();
-            let shell: String = args
-                .get_one::<String>("shell")
-                .expect("a shell is required")
-                .to_string();
-            let out_dir: String = args
-                .get_one::<String>("dir")
-                .expect("a directory is expected")
-                .to_string();
-            let shell_enum = Shell::from_str(&shell).unwrap();
-            let _ = generate_to(shell_enum, &mut cmd, "pact_cli".to_string(), &out_dir);
-            print!(
-                "ℹ️  {} shell completions for pact_cli written to {}",
-                &shell_enum, &out_dir
-            );
-
-            // Ok(());
+        Err(e) => {
+            print!("Error: {:?}", e);
+            std::process::exit(1);
         }
         _ => {
-            cli::build_cli().print_help().unwrap();
+            std::process::exit(1);
+        }
+    }
+}
 
-            // Ok(());
+fn process_mock_command(args: &ArgMatches) {
+    tokio::runtime::Runtime::new().unwrap().block_on(async {
+        let res = pact_mock_server_cli::main::handle_matches(args).await;
+        match res {
+            Ok(_) => {
+                std::process::exit(0);
+            }
+            Err(e) => {
+                std::process::exit(e);
+            }
+            _ => {
+                std::process::exit(1);
+            }
+        }
+    });
+}
+
+fn process_stub_command(args: &ArgMatches) {
+    tokio::runtime::Runtime::new().unwrap().block_on(async {
+        let res = pact_stub_server_cli::main::handle_matches(args).await;
+        match res {
+            Ok(_) => {
+                std::process::exit(0);
+            }
+            Err(e) => {
+                println!("Error: {:?}", e);
+                std::process::exit(3);
+            }
+            _ => {
+                std::process::exit(1);
+            }
+        }
+    });
+}
+
+fn process_verifier_command(args: &ArgMatches) {
+    tokio::runtime::Runtime::new().unwrap().block_on(async {
+        let res = pact_verifier_cli::main::handle_matches(args).await;
+        match res {
+            Ok(_) => {
+                std::process::exit(0);
+            }
+            Err(e) => {
+                std::process::exit(e);
+            }
+        }
+    });
+}
+
+fn generate_completions(args: &ArgMatches) {
+    let shell = args
+        .get_one::<String>("shell")
+        .expect("a shell is required");
+    let out_dir = args
+        .get_one::<String>("dir")
+        .expect("a directory is expected")
+        .to_string();
+    let mut cmd = cli::build_cli();
+    let shell_enum = Shell::from_str(&shell).unwrap();
+    let _ = generate_to(shell_enum, &mut cmd, "pact_cli".to_string(), &out_dir);
+    println!(
+        "ℹ️  {} shell completions for pact_cli written to {}",
+        &shell_enum, &out_dir
+    );
+}
+
+fn process_examples_command(args: &ArgMatches) {
+    let project_type = args.get_one::<String>("type").unwrap().as_str();
+    let project = &args
+        .get_one::<String>("project")
+        .map(|project| project.to_string());
+    let download_all = args.get_flag("all");
+
+    match project_type {
+        "bdct" => {
+            let projects = vec![
+                "example-bi-directional-consumer-cypress",
+                "example-bi-directional-provider-postman",
+                "example-bi-directional-consumer-msw",
+                "example-bi-directional-provider-dredd",
+                "example-bi-directional-provider-restassured",
+                "example-bi-directional-consumer-wiremock",
+                "example-bi-directional-consumer-nock",
+                "example-bi-directional-consumer-mountebank",
+                "example-bi-directional-consumer-dotnet",
+                "example-bi-directional-provider-dotnet",
+            ];
+
+            if download_all {
+                for project in projects {
+                    download_project(project);
+                }
+            } else if let Some(project) = project {
+                download_project(project);
+            } else {
+                println!("Please specify a project to download");
+                for project in projects {
+                    println!("{}", project);
+                }
+            }
+        }
+        "cdct" => {
+            let projects = vec![
+                "example-siren",
+                "example-provider",
+                "example-consumer",
+                "example-consumer-js-kafka",
+                "example-consumer-cypress",
+                "example-consumer-python",
+                "example-consumer-golang",
+                "example-consumer-java-kafka",
+                "example-consumer-java-junit",
+                "example-consumer-java-soap",
+                "example-consumer-dotnet",
+                "example-provider-golang",
+                "example-provider-springboot",
+                "example-provider-java-soap",
+                "example-provider-java-kafka",
+                "example-consumer-js-sns",
+                "example-provider-js-sns",
+                "example-provider-python",
+                "example-consumer-webhookless",
+                "example-provider-dotnet",
+                "pactflow-jsonschema-example",
+                "provider-driven-example",
+                "injected-provider-states-example",
+            ];
+
+            if download_all {
+                for project in projects {
+                    download_project(project);
+                }
+            } else if let Some(project) = project {
+                download_project(project);
+            } else {
+                println!("Please specify a project to download");
+                for project in projects {
+                    println!("{}", project);
+                }
+            }
+        }
+        "workshops" => {
+            let projects = vec![
+                "pact-workshop-js",
+                "pact-workshop-jvm-spring",
+                "pact-workshop-dotnet-core-v1",
+                "pact-workshop-Maven-Springboot-JUnit5",
+                "pact-workshop-go",
+            ];
+            let org = "pact-foundation";
+
+            if download_all {
+                for project in projects {
+                    download_project_with_org(org, project);
+                }
+            } else if let Some(project) = project {
+                download_project_with_org(org, project);
+            } else {
+                println!("Please specify a project to download");
+                for project in projects {
+                    println!("{}", project);
+                }
+            }
+        }
+        _ => {
+            println!("Sorry, you'll need to specify a valid option (bdct, cdct, workshops)");
+        }
+    }
+
+    fn download_project(project: &str) {
+        println!("Downloading {}", project);
+        // Implement the logic to download the project here
+        println!("Downloaded {}", project);
+        println!("Unimplemented");
+        std::process::exit(1);
+    }
+
+    fn download_project_with_org(org: &str, project: &str) {
+        println!("Downloading project {}", project);
+        // Implement the logic to download the project with the specified organization here
+        println!("Downloaded project {}", project);
+
+        println!("Unimplemented");
+        std::process::exit(1);
+    }
+}
+fn process_project_command(args: &ArgMatches) {
+    match args.subcommand() {
+        Some(("install", args)) => {
+            let language = args.get_one::<String>("language").unwrap().as_str();
+            match language {
+                "js" => {
+                    println!("To install Pact-JS, run the following command:");
+                    println!("`npm install @pact-foundation/pact`");
+                }
+                "golang" => {
+                    println!("To install Pact-Go, run the following command:");
+                    println!(
+                        "`go get github.com/pact-foundation/pact-go/v2@2.x.x`"
+                    );
+                    println!("# NOTE: If using Go 1.19 or later, you need to run go install instead");
+                    println!(
+                        "# go install github.com/pact-foundation/pact-go/v2@2.x.x"
+                    );
+                    println!("# download and install the required libraries. The pact-go will be installed into $GOPATH/bin, which is $HOME/go/bin by default.");
+                    println!("pact-go -l DEBUG install");
+                    println!("# 🚀 now write some tests!");
+                }
+                "ruby" => {
+                    println!("To install Pact-Ruby, run the following command:");
+                    println!("Add this line to your application's Gemfile:");
+                    println!("gem 'pact'");
+                    println!("# gem 'pact-consumer-minitest' for minitest");
+                    println!("And then execute:");
+                    println!("$ bundle");
+                    println!("Or install it yourself as:");
+                    println!("$ gem install pact");
+                }
+                "python" => {
+                    println!("To install Pact-Python, run the following command:");
+                    println!("`pip install pact-python`");
+                }
+                "java" => {
+                    println!("To install Pact-JVM, add the following dependency to your build file:");
+                    println!("`testImplementation 'au.com.dius.pact.consumer:junit5:4.6.5'`");
+                    println!("`testImplementation 'au.com.dius.pact.provider:junit5:4.6.5'`");
+                }
+                ".net" => {
+                    println!("To install Pact-.NET, add the following package to your project:");
+                    println!("`dotnet add package PactNet --version 4.5.0`");
+                }
+                "rust" => {
+                    println!("To install Pact-Rust, add the following dependency to your Cargo.toml file:");
+                    println!("`pact_consumer = \"0.0.1\"`");
+                    println!("`pact_verifier = \"0.0.1\"`");
+                    println!("`pact_models = \"0.0.1\"`");
+                    println!("`pact_matching = \"0.0.1\"`");
+                }
+                "php" => {
+                    println!("To install Pact-PHP, add the following dependency to your composer.json file:");
+                    println!("`\"pact-foundation/pact-php\": \"^9.0\"`");
+                    println!("To try out Pact-PHP build with the pact rust core:");
+                    println!("`\"pact-foundation/pact-php\": \"^10.0.0-alpha6\"`");
+                }
+                _ => {
+                    println!("⚠️  Invalid option provided");
+                    // Ok(());
+                }
+            }
+        }
+        Some(("new", args)) => {
+            println!("Unimplemented");
+            std::process::exit(1);
+        }
+        Some(("link", args)) => {
+            println!("Unimplemented");
+            std::process::exit(1);
+        }
+        Some(("issue", args)) => {
+            println!("Unimplemented");
+            std::process::exit(1);
+        }
+        Some(("docs", args)) => {
+            println!("Unimplemented");
+            std::process::exit(1);
+        }
+        _ => {
+            println!("⚠️  No option provided, try running project --help");
         }
     }
 }
