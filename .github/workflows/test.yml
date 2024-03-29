@@ -31,32 +31,26 @@ on:
 jobs:
   build-single:
     if: ${{ github.event_name == 'workflow_dispatch' }}
-    # env:
-    #   SLIM: ${{ github.event.inputs.slim }}
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      target: ${{ github.event.inputs.target }}
+      os: ${{ github.event.inputs.os }}
+      use-cross: ${{ github.event.inputs.use-cross }}
+      slim: ${{ github.event.inputs.slim }}
     name: '🛠️ Build binaries'
-    defaults:
-      run:
-        shell: bash
-    strategy:
-      fail-fast: false
-      matrix:
-        job:
-          - target: ${{ github.event.inputs.target }}
-            os: ${{ github.event.inputs.os }}
-            use-cross: ${{ github.event.inputs.use-cross }}
-            slim: ${{ github.event.inputs.slim }}
-    runs-on: ${{ github.event.inputs.os }}
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     job:
+    #       - target: ${{ github.event.inputs.target }}
+    #         os: ${{ github.event.inputs.os }}
+    #         use-cross: ${{ github.event.inputs.use-cross }}
+    #         slim: ${{ github.event.inputs.slim }}
     permissions:
       contents: write
-    steps:
-      - uses: actions/checkout@v3
-      - uses: you54f/hello_cli/.github/workflows/reusable-build.yml@main
-      # - uses: ./.github/workflows/reusable-build.yml
-        with:
-          target: ${{ github.event.inputs.target }}
-          os: ${{ github.event.inputs.os }}
-          use-cross: ${{ github.event.inputs.use-cross }}
-          slim: ${{ github.event.inputs.slim }}
+    # steps:
+      # - uses: actions/checkout@v3
+      # - uses: you54f/hello_cli/.github/workflows/reusable-build.yml@main
       # - name: Install stable Rust Toolchain Components
       #   uses: dtolnay/rust-toolchain@stable
       #   with:
@@ -113,9 +107,12 @@ jobs:
     # env:
     #   SLIM: false
     name: '🛠️ Build binaries'
-    defaults:
-      run:
-        shell: bash
+    uses: you54f/hello_cli/.github/workflows/reusable-build.yml@main
+    with:
+      target: ${{ matrix.job.target }}
+      os: ${{ matrix.job.os }}
+      use-cross: ${{ matrix.job.use-cross }}
+      slim: false
     strategy:
       fail-fast: false
       matrix:
@@ -168,18 +165,11 @@ jobs:
           # - { target: mips64el-unknown-linux-gnuabi64, os: ubuntu-latest, use-cross: true }
           # - { target: mips64-unknown-linux-muslabi64, os: ubuntu-latest, use-cross: true }
           # - { target: mips64el-unknown-linux-muslabi64, os: ubuntu-latest, use-cross: true }
-    runs-on: ${{ matrix.job.os }}
+    # runs-on: ${{ matrix.job.os }}
     permissions:
       contents: write
-    steps:
-      - uses: actions/checkout@v3
-      # - uses: ./.github/workflows/reusable-build.yml
-      - uses: you54f/hello_cli/.github/workflows/reusable-build.yml@main
-        with:
-          target: ${{ matrix.job.target }}
-          os: ${{ matrix.job.os }}
-          use-cross: ${{ matrix.job.use-cross }}
-          slim: false
+    # steps:
+      # - uses: actions/checkout@v3
       # - name: Install stable Rust Toolchain Components
       #   uses: dtolnay/rust-toolchain@stable
       #   with:
