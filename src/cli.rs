@@ -9,11 +9,13 @@ pub mod pact_plugin_cli;
 pub mod pact_stub_server_cli;
 pub mod pact_verifier_cli;
 pub mod pactflow_client;
+pub mod cli_extension;
 mod utils;
 
 pub fn build_cli() -> Command {
     let app = Command::new("pact_cli")
         .about("A pact cli tool")
+        .subcommand(cli_extension::add_cli_extensions_subcommand())
         .subcommand(pact_broker_client::add_pact_broker_client_command())
         .subcommand(pactflow_client::add_pactflow_client_command())
         .subcommand(add_completions_subcommand())
