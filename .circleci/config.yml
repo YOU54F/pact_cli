@@ -19,15 +19,9 @@ jobs:
             Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
             New-Item -ItemType Directory -Path "pact/bin" -Force
             Move-Item -Path "pact_cli-x86_64-windows-msvc.exe" -Destination "pact/bin/pact_cli.exe" -Force
-      - run:
-          name: set path to pact executables
-          shell: bash
-          command: echo 'export PATH=${PWD}/pact/bin:${PATH}' >> $BASH_ENV
+            $env:PATH += ";$(pwd)/pact/bin"
+            pact_cli --help
       - run:
           name: run bin
           command: |
-            pact/bin/pact_cli.exe --help
-      - run:
-          name: run bin
-          command: |
-            pact_cli.exe --help
+            pact/bin/pact_cli --help
