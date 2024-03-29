@@ -1,0 +1,62 @@
+version: 2.1
+
+orbs:
+  win: circleci/windows@5.0
+
+jobs:
+  build:
+    executor:
+      name: win/default
+      shell: powershell.exe
+    steps:
+      - checkout
+      - run: systeminfo
+      - run:
+          name: "Run pact_cli"
+          shell: powershell.exe
+          command: |
+            Invoke-WebRequest -Uri "https://github.com/YOU54F/pact_cli/releases/download/v0.0.10/pact_cli-x86_64-windows-msvc.exe" -OutFile "pact_cli-x86_64-windows-msvc.exe"
+            Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
+            New-Item -ItemType Directory -Path "pact/bin" -Force
+            Move-Item -Path "pact_cli-x86_64-windows-msvc.exe" -Destination "pact/bin/pact_cli.exe" -Force
+      - run:
+          name: set path to pact executables
+          shell: bash
+          command: echo 'export PATH=${PWD}/pact/bin:${PATH}' >> $BASH_ENV
+      - run:
+          name: set path to pact executables
+          command: |
+            pact_cli --help
+            pact_cli pact-broker --help
+            pact_cli pactflow --help
+            pact_cli completions --help
+            pact_cli docker --help
+            pact_cli plugin --help
+            pact_cli plugin list --help
+            pact_cli plugin list installed --help
+            pact_cli plugin list known --help
+            pact_cli plugin env --help
+            pact_cli plugin install --help
+            pact_cli plugin remove --help
+            pact_cli plugin enable --help
+            pact_cli plugin disable --help
+            pact_cli plugin repository --help
+            pact_cli plugin repository validate --help
+            pact_cli plugin repository new --help
+            pact_cli plugin repository add-plugin-version --help
+            pact_cli plugin repository add-plugin-version git-hub --help
+            pact_cli plugin repository add-plugin-version file --help
+            pact_cli plugin repository add-all-plugin-versions --help
+            pact_cli plugin repository yank-version --help
+            pact_cli plugin repository list --help
+            pact_cli plugin repository list-versions --help
+            pact_cli stub --help
+            pact_cli verifier --help
+            pact_cli mock --help
+            pact_cli mock start --help
+            pact_cli mock list --help
+            pact_cli mock create --help
+            pact_cli mock verify --help
+            pact_cli mock shutdown --help
+            pact_cli mock shutdown-master --help
+            pact_cli standalone --help

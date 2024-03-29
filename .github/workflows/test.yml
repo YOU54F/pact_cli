@@ -6,7 +6,8 @@ on:
       - 'main'
   push:
     branches:
-      - '*'
+      - 'main'
+      # - '*'
   workflow_dispatch:
     inputs:
       target:
