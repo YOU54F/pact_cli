@@ -2452,7 +2452,7 @@ pub fn run(args: &ArgMatches) {
                                     let json: String = serde_json::to_string(&res.clone()).unwrap();
                                     println!("{}", json);
                                 } else if output == "table" {
-                                    println!("{:?}", res.clone());
+                                    // println!("{:?}", res.clone());
 
                                     let data: Data =
                                         match serde_json::from_str(&res.clone().to_string()) {
