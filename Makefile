@@ -72,6 +72,7 @@ cargo_build_release:
 		if [[ $(TARGET) == "aarch64-unknown-freebsd" ]]; then \
 			echo "building with cargo nightly, plus std and core for aarch64-unknown-freebsd"; \
 			RUSTFLAGS="-Zlocation-detail=none" $(BUILDER) +nightly build -Z build-std=std,panic_abort,core,alloc,proc_macro --profile release-aarch64-freebsd --target=$(TARGET); \
+			mkdir -p target/aarch64-unknown-freebsd/release; \
 			mv target/aarch64-unknown-freebsd/release-aarch64-freebsd/{*.a,*.so,$(BINARY_NAME)} target/aarch64-unknown-freebsd/release; \
 		else \
 			if [[ $(TARGET) == *"risc"* ]] && [[ $(TARGET) != *"musl"* ]]; then \
@@ -107,6 +108,7 @@ cargo_build_release:
 	elif [[ $(TARGET) == "aarch64-unknown-freebsd" ]]; then \
 		echo "building with cargo nightly, plus std and core for aarch64-unknown-freebsd"; \
 		$(BUILDER) +nightly build -Z build-std=std,core,alloc,proc_macro --profile release-aarch64-freebsd --target=$(TARGET); \
+		mkdir -p target/aarch64-unknown-freebsd/release; \
 		mv target/aarch64-unknown-freebsd/release-aarch64-freebsd/{*.a,*.so,$(BINARY_NAME)} target/aarch64-unknown-freebsd/release; \
 	elif [[ $(TARGET) == *"musl"* ]]; then \
 		$(BUILDER) build --release --target=$(TARGET) --bin $(BINARY_NAME); \

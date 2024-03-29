@@ -34,6 +34,8 @@ jobs:
     runs-on: ${{ inputs.os }}
     env:
       SLIM: ${{ inputs.slim }}
+    permissions: # only needed for release_workflow however for speed (not needing to wait for another runner to be available) we set it here
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - name: Install stable Rust Toolchain Components
@@ -74,18 +76,19 @@ jobs:
         with:
           name: ${{ inputs.target }}
           path: dist/
-  release_workflow:
-    needs: build_workflow
-    runs-on: ubuntu-latest
-    if: ${{ inputs.force_release == true || github.ref == 'refs/heads/main' }}
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@master
-        with:
-          name: ${{ inputs.target }}
-          path: dist
+  # release_workflow:
+  #   needs: build_workflow
+  #   runs-on: ubuntu-latest
+  #   if: ${{ inputs.force_release == true || github.ref == 'refs/heads/main' }}
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - uses: actions/download-artifact@master
+  #       with:
+  #         name: ${{ inputs.target }}
+  #         path: dist
       - name: Publish archives and packages
+        if: ${{ inputs.force_release == true || github.ref == 'refs/heads/main' }}
         uses: softprops/action-gh-release@master
         with:
           tag_name: v${{ inputs.version }}
