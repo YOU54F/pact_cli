@@ -166,6 +166,7 @@ jobs:
             platform: linux/s390x
       fail-fast: false
     steps:
+      - uses: actions/checkout@v3 # required for local pact and test command script
       - name: Download
         run: |
           curl -LO https://github.com/YOU54F/hello_cli/releases/download/v0.0.10/pact_cli-x86_64-linux-musl
