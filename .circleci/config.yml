@@ -25,3 +25,7 @@ jobs:
           name: run bin
           command: |
             pact/bin/pact_cli --help
+      - run:
+          name: run bin
+          command: |
+            pact_cli --help
