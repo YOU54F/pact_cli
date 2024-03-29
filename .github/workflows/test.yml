@@ -103,8 +103,8 @@ jobs:
       - build
     name: '📦 Github release'
     if: github.ref == 'refs/heads/main'
-    # permissions:
-    #   contents: write
+    permissions:
+      contents: write
     uses: you54f/hello_cli/.github/workflows/reusable-release.yml@main
     with:
       version: latest
@@ -113,6 +113,8 @@ jobs:
       - build-single
     name: '📦 Github release'
     if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
     uses: you54f/hello_cli/.github/workflows/reusable-release.yml@main
     with:
       version: latest
