@@ -1,0 +1,9 @@
+{
+  "action": "workflow_dispatch",
+  "inputs": {
+      "target": "x86_64-unknown-linux-gnu",
+      "slim": false,
+      "use-cross": false,
+      "os": "ubuntu-latest"
+  }
+}
