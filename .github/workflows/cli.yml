@@ -24,7 +24,7 @@ jobs:
             shell: pwsh
           - os: windows-latest
             shell: cmd
-
+      fail-fast: false
     steps:
     - name: Download
       if: matrix.os == 'ubuntu-latest'
