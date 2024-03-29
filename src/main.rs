@@ -29,6 +29,7 @@ pub fn main() {
                 Some(("mock", args)) => process_mock_command(args),
                 Some(("stub", args)) => process_stub_command(args),
                 Some(("verifier", args)) => process_verifier_command(args),
+                // Some(("verifier", args)) => process_verifier_command(args),
                 Some(("extension", args)) => cli_extension::main(args),
                 _ => cli::build_cli().print_help().unwrap(),
             }

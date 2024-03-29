@@ -34,40 +34,107 @@ Authentication using a bearer token can be specified using the environment varia
 $ pact_cli pact-broker publish --help
 Publishes pacts to the Pact Broker
 
-Usage: pact_cli pact-broker publish [OPTIONS] --broker-base-url <PACT_BROKER_BASE_URL> [PACT_DIRS_OR_FILES]
-
-Arguments:
-  [PACT_DIRS_OR_FILES]  Pact directories or files
+Usage: pact_cli pact-broker publish [OPTIONS] --broker-base-url <PACT_BROKER_BASE_URL> <--glob [<glob>...]|--file [<file>...]|--dir [<dir>...]>
 
 Options:
   -b, --broker-base-url <PACT_BROKER_BASE_URL>
-          The base URL of the Pact Broker [env: PACT_BROKER_BASE_URL=]
+          The base URL of the Pact Broker
+          
+          [env: PACT_BROKER_BASE_URL=]
+
   -u, --broker-username <PACT_BROKER_USERNAME>
-          Pact Broker basic auth username [env: PACT_BROKER_USERNAME=]
+          Pact Broker basic auth username
+          
+          [env: PACT_BROKER_USERNAME=]
+
   -p, --broker-password <PACT_BROKER_PASSWORD>
-          Pact Broker basic auth password [env: PACT_BROKER_PASSWORD=]
+          Pact Broker basic auth password
+          
+          [env: PACT_BROKER_PASSWORD=]
+
   -k, --broker-token <PACT_BROKER_TOKEN>
-          Pact Broker bearer token [env: PACT_BROKER_TOKEN=]
+          Pact Broker bearer token
+          
+          [env: PACT_BROKER_TOKEN=]
+
+      --url <url>
+          The url of the pact file
+
+      --username <username>
+          username for pact url auth
+
+      --password <password>
+          password for pact url auth
+
+      --token <token>
+          bearer token for pact url
+
+  -f, --file [<file>...]
+          Pact file to publish (can be repeated)
+
+  -d, --dir [<dir>...]
+          Directory of pact files to publish (can be repeated)
+
+  -g, --glob [<glob>...]
+          
+          Glob pattern to match pact files to publish
+          
+          ?      matches any single character.
+          *      matches any (possibly empty) sequence of characters.
+          **     matches the current directory and arbitrary subdirectories. This sequence must form
+                   a single path component, so both **a and b** are invalid and will result in an
+                   error. A sequence of more than two consecutive * characters is also invalid.
+          [...]  matches any character inside the brackets. Character sequences can also specify
+                   ranges of characters, as ordered by Unicode, so e.g. [0-9] specifies any character
+                   between 0 and 9 inclusive. An unclosed bracket is invalid.
+          [!...] is the negation of [...], i.e. it matches any characters not in the brackets.
+          
+          The metacharacters ?, *, [, ] can be matched by using brackets (e.g. [?]). When a ]
+          occurs immediately following [ or [! then it is interpreted as being part of, rather
+          then ending, the character set, so ] and NOT ] can be matched by []] and [!]] respectively.
+          The - character can be specified inside a character sequence pattern by placing it at
+          the start or the end, e.g. [abc-].
+          
+          See https://docs.rs/glob/0.3.0/glob/struct.Pattern.html
+
+      --validate
+          Validate the Pact files before publishing.
+
+      --strict
+          Require strict validation.
+
   -a, --consumer-app-version <consumer-app-version>
           The consumer application version
+
       --branch <branch>
           Repository branch of the consumer version
+
   -r, --auto-detect-version-properties
           Automatically detect the repository commit, branch and build URL from known CI environment variables or git CLI. Supports Buildkite, Circle CI, Travis CI, GitHub Actions, Jenkins, Hudson, AppVeyor, GitLab, CodeShip, Bitbucket and Azure DevOps.
-  -t, --tag [<tag>]
-          Tag name for consumer version. Can be specified multiple times.
-  -g, --tag-with-git-branch
+
+  -t, --tag [<tag>...]
+          Tag name for consumer version. Can be specified multiple times (delimiter ,).
+
+      --tag-with-git-branch
           Tag consumer version with the name of the current git branch. Supports Buildkite, Circle CI, Travis CI, GitHub Actions, Jenkins, Hudson, AppVeyor, GitLab, CodeShip, Bitbucket and Azure DevOps.
+
       --build-url <build-url>
           The build URL that created the pact
+
       --merge
           If a pact already exists for this consumer version and provider, merge the contents. Useful when running Pact tests concurrently on different build nodes.
+
   -o, --output <OUTPUT>
-          Value must be one of ["json", "text"] [default: text] [possible values: json, text]
+          Value must be one of ["json", "text", "pretty"]
+          
+          [default: text]
+          [possible values: json, text, pretty]
+
   -v, --verbose
           Verbose output.
+
   -h, --help
-          Print help
+          Print help (see a summary with '-h')
 
 ```
 
@@ -1094,16 +1161,17 @@ A pact cli tool
 Usage: pact_cli [COMMAND]
 
 Commands:
+  extension    Pact CLI extensions are repositories that provide additional gh commands
   pact-broker  
   pactflow     
   completions  Generates completion scripts for your shell
   docker       Run the Pact Broker as a Docker container
   examples     download example projects
   project      Pact project actions for setting up and managing pact projects
-  standalone   Install & Run the Pact Broker in $HOME/traveling-broker
+  standalone   Install & Run the Pact Broker with a bundled ruby runtime in $HOME/traveling-broker
   plugin       CLI utility for Pact plugins
   mock         Standalone Pact mock server
-  stub         Pact Stub Server 0.0.9
+  stub         Pact Stub Server 0.0.10
   verifier     
   help         Print this message or the help of the given subcommand(s)
 
@@ -1402,7 +1470,6 @@ Commands:
 
 Options:
       --help                 Print help and exit
-  -v, --version              Print version information and exit
   -p, --port <port>          port the master mock server runs on (defaults to 8080)
   -h, --host <host>          hostname the master mock server runs on (defaults to localhost)
   -l, --loglevel <loglevel>  Log level for mock servers to write to the log file (defaults to info) [possible values: error, warn, info, debug, trace, none]
@@ -1421,13 +1488,13 @@ Options:
       --help                     Print help and exit
   -o, --output <output>          the directory where to write files to (defaults to current directory)
       --base-port <base-port>    the base port number that mock server ports will be allocated from. If not specified, ports will be randomly assigned by the OS.
-  -v, --version                  Print version information and exit
   -p, --port <port>              port the master mock server runs on (defaults to 8080)
-      --server-key <server-key>  the server key to use to authenticate shutdown requests (defaults to a random generated one)
   -h, --host <host>              hostname the master mock server runs on (defaults to localhost)
+      --server-key <server-key>  the server key to use to authenticate shutdown requests (defaults to a random generated one)
   -l, --loglevel <loglevel>      Log level for mock servers to write to the log file (defaults to info) [possible values: error, warn, info, debug, trace, none]
       --no-term-log              Turns off using terminal ANSI escape codes
       --no-file-log              Do not log to an output file
+  -V, --version                  Print version
 
 ```
 
@@ -1439,12 +1506,12 @@ Usage: pact_cli mock list [OPTIONS]
 
 Options:
       --help                 Print help and exit
-  -v, --version              Print version information and exit
   -p, --port <port>          port the master mock server runs on (defaults to 8080)
   -h, --host <host>          hostname the master mock server runs on (defaults to localhost)
   -l, --loglevel <loglevel>  Log level for mock servers to write to the log file (defaults to info) [possible values: error, warn, info, debug, trace, none]
       --no-term-log          Turns off using terminal ANSI escape codes
       --no-file-log          Do not log to an output file
+  -V, --version              Print version
 
 ```
 
@@ -1458,12 +1525,12 @@ Options:
   -f, --file <file>          the pact file to define the mock server
       --help                 Print help and exit
   -c, --cors-preflight       Handle CORS pre-flight requests
-  -v, --version              Print version information and exit
   -p, --port <port>          port the master mock server runs on (defaults to 8080)
   -h, --host <host>          hostname the master mock server runs on (defaults to localhost)
   -l, --loglevel <loglevel>  Log level for mock servers to write to the log file (defaults to info) [possible values: error, warn, info, debug, trace, none]
       --no-term-log          Turns off using terminal ANSI escape codes
       --no-file-log          Do not log to an output file
+  -V, --version              Print version
 
 ```
 
@@ -1481,8 +1548,6 @@ Options:
           the ID of the mock server
   -m, --mock-server-port <mock-server-port>
           the port number of the mock server
-  -v, --version
-          Print version information and exit
   -p, --port <port>
           port the master mock server runs on (defaults to 8080)
   -h, --host <host>
@@ -1493,6 +1558,8 @@ Options:
           Turns off using terminal ANSI escape codes
       --no-file-log
           Do not log to an output file
+  -V, --version
+          Print version
 
 ```
 
@@ -1509,8 +1576,6 @@ Options:
           the ID of the mock server
   -m, --mock-server-port <mock-server-port>
           the port number of the mock server
-  -v, --version
-          Print version information and exit
   -p, --port <port>
           port the master mock server runs on (defaults to 8080)
   -h, --host <host>
@@ -1521,6 +1586,8 @@ Options:
           Turns off using terminal ANSI escape codes
       --no-file-log
           Do not log to an output file
+  -V, --version
+          Print version
 
 ```
 
@@ -1534,13 +1601,13 @@ Usage: pact_cli mock shutdown-master [OPTIONS] --server-key <server-key>
 Options:
       --help                     Print help and exit
   -k, --server-key <server-key>  the server key of the master server
-      --period <period>          the period of time in milliseconds to allow the server to shutdown (defaults to 100ms)
-  -v, --version                  Print version information and exit
   -p, --port <port>              port the master mock server runs on (defaults to 8080)
+      --period <period>          the period of time in milliseconds to allow the server to shutdown (defaults to 100ms)
   -h, --host <host>              hostname the master mock server runs on (defaults to localhost)
   -l, --loglevel <loglevel>      Log level for mock servers to write to the log file (defaults to info) [possible values: error, warn, info, debug, trace, none]
       --no-term-log              Turns off using terminal ANSI escape codes
       --no-file-log              Do not log to an output file
+  -V, --version                  Print version
 
 ```
 
@@ -1548,7 +1615,7 @@ Options:
 
 ```console
 $ pact_cli stub --help
-Pact Stub Server 0.0.9
+Pact Stub Server 0.0.10
 
 Usage: pact_cli stub [OPTIONS]
 
@@ -1587,8 +1654,6 @@ Options:
           Consumer name or regex to use to filter the Pacts fetched from the Pact broker (can be repeated)
       --provider-name <provider-name>
           Provider name or regex to use to filter the Pacts fetched from the Pact broker (can be repeated)
-  -v, --version
-          Print version information
   -h, --help
           Print help
 
@@ -1601,8 +1666,7 @@ $ pact_cli verifier --help
 Usage: pact_cli verifier [OPTIONS]
 
 Options:
-      --help     Print help and exit
-  -v, --version  Print version information and exit
+      --help  Print help and exit
 
 Logging options:
   -l, --loglevel <loglevel>  Log level to emit log events at (defaults to warn) [possible values: error, warn, info, debug, trace, none]

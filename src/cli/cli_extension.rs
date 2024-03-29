@@ -1,6 +1,7 @@
 use std::env;
 use clap::{value_parser, ArgMatches, Command};
 use std::process::{Command as Cmd,exit};
+use std::io::{self, Write};
 
 pub fn add_cli_extensions_subcommand() -> Command {
     Command::new("extension")
@@ -41,19 +42,15 @@ pub fn main(_arg: &ArgMatches) {
     };
 
     println!("Extension executable: {}", extension_executable);
-    let output = Cmd::new(&extension_executable)
-        .args(&args[1..])
-        .output()
-        .expect("Failed to execute extension command");
+    let mut command = Cmd::new(&extension_executable);
+    command.args(&args[1..]);
+    command.stdout(io::stdout());
+    command.stderr(io::stderr());
 
-    if output.status.success() {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        print!("{}", stdout);
-    } else {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        eprint!("{}", stdout);
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        eprint!("{}", stderr);
-        exit(1);
+    let status = command.status().expect("Failed to execute extension command");
+
+    if !status.success() {
+        // eprintln!("Extension command failed with status: {}", status);
+        exit(status.code().unwrap_or(1));
     }
 }

@@ -2,8 +2,8 @@ name: Rust
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [ "test", "broker_test" ]
+  push:
+    branches: [ "test", "non-slim" ]
   # pull_request:
   #   branches: [ "main" ]
 
@@ -30,7 +30,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       shell: bash
       run: |
-        curl -LO https://github.com/YOU54F/hello_cli/releases/download/v0.0.9/pact_cli-x86_64-linux-musl
+        curl -LO https://github.com/YOU54F/hello_cli/releases/download/v0.0.10/pact_cli-x86_64-linux-musl
         chmod +x pact_cli-x86_64-linux-musl
         mkdir -p pact/bin
         mv pact_cli-x86_64-linux-musl pact/bin/pact_cli
@@ -38,7 +38,7 @@ jobs:
       if: matrix.os == 'macos-12'
       shell: bash
       run: |
-        curl -LO https://github.com/YOU54F/hello_cli/releases/download/v0.0.9/pact_cli-x86_64-macos
+        curl -LO https://github.com/YOU54F/hello_cli/releases/download/v0.0.10/pact_cli-x86_64-macos
         chmod +x pact_cli-x86_64-macos
         mkdir -p pact/bin
         mv pact_cli-x86_64-macos pact/bin/pact_cli
@@ -46,7 +46,7 @@ jobs:
       if: matrix.os == 'macos-14'
       shell: bash
       run: |
-        curl -LO https://github.com/YOU54F/hello_cli/releases/download/v0.0.9/pact_cli-aarch64-macos
+        curl -LO https://github.com/YOU54F/hello_cli/releases/download/v0.0.10/pact_cli-aarch64-macos
         chmod +x pact_cli-aarch64-macos
         mkdir -p pact/bin
         mv pact_cli-aarch64-macos pact/bin/pact_cli
@@ -54,7 +54,7 @@ jobs:
       if: matrix.os == 'windows-latest'
       shell: bash
       run: |
-        curl -LO https://github.com/YOU54F/hello_cli/releases/download/v0.0.9/pact_cli-x86_64-windows-msvc.exe
+        curl -LO https://github.com/YOU54F/hello_cli/releases/download/v0.0.10/pact_cli-x86_64-windows-msvc.exe
         chmod +x pact_cli-x86_64-windows-msvc.exe
         mkdir -p pact/bin
         mv pact_cli-x86_64-windows-msvc.exe pact/bin/pact_cli.exe
@@ -128,14 +128,16 @@ jobs:
         WAIT_FOR_VERSION: 4df3f9262d84cab0039c07bf861045fbb3c20ab7
 
     - name: Run pact-broker commands
-      run: |
-        pact_cli standalone info
-        pact_cli pact-broker list-latest-pact-versions
-        pact_cli pact-broker create-environment --name name_foo1
-        pact_cli pact-broker create-environment --name name_foo2 --display-name display_name_foo
-        pact_cli pact-broker create-environment --name name_foo3 --display-name display_name_foo --contact-name contact_name_foo
-        pact_cli pact-broker create-environment --name name_foo4 --display-name display_name_foo --contact-name contact_name_foo --contact-email-address contact.email.address@foo.bar
-        pact_cli standalone stop
+      shell: bash
+      run: ./run.sh
+      # run: |
+      #   pact_cli standalone info
+      #   pact_cli pact-broker list-latest-pact-versions
+      #   pact_cli pact-broker create-environment --name name_foo1
+      #   pact_cli pact-broker create-environment --name name_foo2 --display-name display_name_foo
+      #   pact_cli pact-broker create-environment --name name_foo3 --display-name display_name_foo --contact-name contact_name_foo
+      #   pact_cli pact-broker create-environment --name name_foo4 --display-name display_name_foo --contact-name contact_name_foo --contact-email-address contact.email.address@foo.bar
+      #   pact_cli standalone stop
       env:
         PACT_BROKER_BASE_URL: http://localhost:9292
 
@@ -166,7 +168,7 @@ jobs:
     steps:
       - name: Download
         run: |
-          curl -LO https://github.com/YOU54F/hello_cli/releases/download/v0.0.9/pact_cli-x86_64-linux-musl
+          curl -LO https://github.com/YOU54F/hello_cli/releases/download/v0.0.10/pact_cli-x86_64-linux-musl
           chmod +x pact_cli-x86_64-linux-musl
           mkdir -p pact/bin
           mv pact_cli-x86_64-linux-musl pact/bin/pact_cli 

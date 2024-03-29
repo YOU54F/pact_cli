@@ -424,11 +424,11 @@ pub fn build_args() -> Command {
       .action(ArgAction::Append)
       .value_parser(regex_value)
       .help("Provider name or regex to use to filter the Pacts fetched from the Pact broker (can be repeated)"))
-    .arg(Arg::new("version")
-      .short('v')
-      .long("version")
-      .action(ArgAction::Version)
-      .help("Print version information"))
+    // .arg(Arg::new("version")
+    //   .short('v')
+    //   .long("version")
+    //   .action(ArgAction::Version)
+    //   .help("Print version information"))
 }
 
 fn setup_logger(level: &str) {

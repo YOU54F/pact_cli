@@ -498,16 +498,10 @@ pub fn run(args: &ArgMatches) -> Result<(), ExitCode> {
                 .map(|version| version.to_string()),
         ),
         Some(("repository", args)) => repository::handle_command(args),
-        None => unimplemented!("Handle empty ArgMatches case"),
-        Some((&_, _)) => unimplemented!("Handle unknown subcommand case"), // Commands::List(command) => list_plugins(command),
-                                                                           // Commands::Env => print_env(),
-                                                                           // Commands::Install { yes, skip_if_installed, source, source_type, version } => {
-                                                                           //   install::install_plugin(source, source_type, *yes || cli.yes, *skip_if_installed, version)
-                                                                           // },
-                                                                           // Commands::Remove { yes, name, version } => remove_plugin(name, version, *yes || cli.yes),
-                                                                           // Commands::Enable { name, version } => enable_plugin(name, version),
-                                                                           // Commands::Disable { name, version } => disable_plugin(name, version),
-                                                                           // Commands::Repository(command) => repository::handle_command(command)
+        _ => {
+            println!("No subcommand provided");
+            Ok(())
+        }
     };
 
     result.map_err(|err| {

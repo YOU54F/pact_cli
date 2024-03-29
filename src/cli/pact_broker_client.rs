@@ -2280,7 +2280,7 @@ pub fn run(args: &ArgMatches) {
             let to = args.get_one::<String>("to");
             let _retry_while_unknown = args.get_one::<String>("retry-while-unknown");
             let _retry_interval = args.get_one::<String>("retry-interval");
-            let _dry_run = args.get_flag("dry-run");
+            let dry_run = args.get_flag("dry-run");
             let _no_dry_run = args.get_flag("no-dry-run");
             let _skip_dry_run = args.get_flag("skip-dry-run");
 
@@ -2532,6 +2532,10 @@ pub fn run(args: &ArgMatches) {
                                     } else {
                                         let computer_says_no = Colour::Red.paint("¯\\_(ツ)_/¯");
                                         println!(r"❌ Computer says no {}", computer_says_no);
+                                        if dry_run == true {
+                                            println!("📌 Dry run enabled, suppressing failing exit code");
+                                            std::process::exit(0);
+                                        }
                                         std::process::exit(1);
                                     }
                                 }
