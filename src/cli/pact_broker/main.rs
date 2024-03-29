@@ -7,10 +7,10 @@ use std::str::from_utf8;
 
 use anyhow::anyhow;
 use futures::stream::*;
-use http::method;
+
 use itertools::Itertools;
 use maplit::hashmap;
-use pact_matching::Mismatch;
+
 use pact_models::http_utils;
 use pact_models::http_utils::HttpAuth;
 use pact_models::json_utils::json_to_string;

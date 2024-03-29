@@ -1462,9 +1462,11 @@ pub fn run(args: &ArgMatches) {
                             struct Environment {
                                 uuid: String,
                                 name: String,
-                                displayName: String,
+                                #[serde(rename = "displayName")]
+                                display_name: String,
                                 production: bool,
-                                createdAt: String,
+                                #[serde(rename = "createdAt")]
+                                created_at: String,
                             }
 
                             table.load_preset(UTF8_FULL).set_header(vec![
@@ -1483,9 +1485,9 @@ pub fn run(args: &ArgMatches) {
                                         table.add_row(vec![
                                             environment.uuid,
                                             environment.name,
-                                            environment.displayName,
+                                            environment.display_name,
                                             environment.production.to_string(),
-                                            environment.createdAt,
+                                            environment.created_at,
                                         ]);
                                     }
                                 }
@@ -1555,7 +1557,8 @@ pub fn run(args: &ArgMatches) {
             struct PacticipantVersions {
                 _embedded: Embedded,
                 _links: Links,
-                createdAt: String,
+                #[serde(rename = "createdAt")]
+                created_at: String,
                 number: String,
             }
 
@@ -1595,7 +1598,8 @@ pub fn run(args: &ArgMatches) {
 
             #[derive(Debug, Deserialize, Serialize)]
             struct Embedded {
-                branchVersions: Vec<BranchVersion>,
+                #[serde(rename = "branchVersions")]
+                branch_versions: Vec<BranchVersion>,
                 tags: Vec<Tag>,
             }
 
@@ -1766,7 +1770,7 @@ pub fn run(args: &ArgMatches) {
 
             let pacticipant = args.get_one::<String>("pacticipant");
             let environment = args.get_one::<String>("environment");
-            let application_instance = args.get_one::<String>("application-instance");
+            let _application_instance = args.get_one::<String>("application-instance");
             let broker_url = get_broker_url(args);
             let auth = get_auth(args);
             tokio::runtime::Runtime::new().unwrap().block_on(async {
@@ -1789,9 +1793,11 @@ pub fn run(args: &ArgMatches) {
             struct Environment {
                 uuid: String,
                 name: String,
-                displayName: String,
+                #[serde(rename = "displayName")]
+                display_name: String,
                 production: bool,
-                createdAt: String,
+                #[serde(rename = "createdAt")]
+                created_at: String,
             }
 
             let res = hal_client.clone()
@@ -1833,15 +1839,15 @@ pub fn run(args: &ArgMatches) {
                                         // print!("🧹 Found currently deployed versions");
                                         // print!("Result JSON: {:#?}", result);
                                         if let Some(embedded) = result["_embedded"].as_object() {
-                                            if let Some(deployedVersions) = embedded["deployedVersions"].as_array() {
-                                                if deployedVersions.len() == 0 {
+                                            if let Some(deployed_versions) = embedded["deployedVersions"].as_array() {
+                                                if deployed_versions.len() == 0 {
                                                     print!("❌ No currently deployed versions in {} environment", environment.unwrap());
                                                     std::process::exit(1);
                                                 }
-                                                for deployedVersion in deployedVersions {
-                                                    let pacticipantName = deployedVersion["_embedded"]["pacticipant"]["name"].as_str().unwrap();
-                                                    if pacticipantName == pacticipant.unwrap() {
-                                                        let self_href = deployedVersion["_links"]["self"]["href"].as_str().unwrap();
+                                                for deployed_version in deployed_versions {
+                                                    let pacticipant_name = deployed_version["_embedded"]["pacticipant"]["name"].as_str().unwrap();
+                                                    if pacticipant_name == pacticipant.unwrap() {
+                                                        let self_href = deployed_version["_links"]["self"]["href"].as_str().unwrap();
                                                         // Send a patch request with the user's payload to selfHref
                                                         // print!("🧹 Undeploying {} from {} environment", pacticipant.unwrap(), environment.unwrap());
                                                         // print!("🧹 Sending a patch request to {}", self_href);
@@ -1924,7 +1930,8 @@ pub fn run(args: &ArgMatches) {
             struct PacticipantVersions {
                 _embedded: Embedded,
                 _links: Links,
-                createdAt: String,
+                #[serde(rename = "createdAt")]
+                created_at: String,
                 number: String,
             }
 
@@ -1964,7 +1971,8 @@ pub fn run(args: &ArgMatches) {
 
             #[derive(Debug, Deserialize, Serialize)]
             struct Embedded {
-                branchVersions: Vec<BranchVersion>,
+                #[serde(rename = "branchVersions")]
+                branch_versions: Vec<BranchVersion>,
                 tags: Vec<Tag>,
             }
 
@@ -2012,7 +2020,7 @@ pub fn run(args: &ArgMatches) {
                                 // <- "{\"applicationInstance\":\"foo\",\"target\":\"foo\"}"
 
 
-                                let mut payload = json!({});
+                                let payload = json!({});
                                 let res: Result<Value, PactBrokerError> = hal_client.clone().post_json(&(record_release_href.clone()), &payload.to_string()).await;
                                 let default_output = "text".to_string();
                                 let output = args.get_one::<String>("output").unwrap_or(&default_output);
@@ -2153,10 +2161,12 @@ pub fn run(args: &ArgMatches) {
                 struct Environment {
                     uuid: String,
                     name: String,
-                    displayName: String,
+                    #[serde(rename = "displayName")]
+                    display_name: String,
                     production: bool,
-                    createdAt: String,
-                }
+                    #[serde(rename = "createdAt")]
+                    created_at: String,
+                    }
 
                 let res = hal_client.clone()
                     .fetch(&(broker_url.clone() + "/environments?"))
@@ -2197,15 +2207,15 @@ pub fn run(args: &ArgMatches) {
                                             // print!("🧹 Found currently deployed versions");
                                             // print!("Result JSON: {:#?}", result);
                                             if let Some(embedded) = result["_embedded"].as_object() {
-                                                if let Some(releasedVersions) = embedded["releasedVersions"].as_array() {
-                                                    if releasedVersions.len() == 0 {
+                                                if let Some(released_versions) = embedded["releasedVersions"].as_array() {
+                                                    if released_versions.len() == 0 {
                                                         print!("❌ No currently released versions in {} environment", environment.unwrap());
                                                         std::process::exit(1);
                                                     }
-                                                    for releasedVersion in releasedVersions {
-                                                        let pacticipantName = releasedVersion["_embedded"]["pacticipant"]["name"].as_str().unwrap();
-                                                        if pacticipantName == pacticipant.unwrap() {
-                                                            let self_href = releasedVersion["_links"]["self"]["href"].as_str().unwrap();
+                                                    for released_version in released_versions {
+                                                        let pacticipant_name = released_version["_embedded"]["pacticipant"]["name"].as_str().unwrap();
+                                                        if pacticipant_name == pacticipant.unwrap() {
+                                                            let self_href = released_version["_links"]["self"]["href"].as_str().unwrap();
                                                             // Send a patch request with the user's payload to selfHref
                                                             // print!("🧹 Undeploying {} from {} environment", pacticipant.unwrap(), environment.unwrap());
                                                             // print!("🧹 Sending a patch request to {}", self_href);
@@ -2260,19 +2270,19 @@ pub fn run(args: &ArgMatches) {
         Some(("can-i-deploy", args)) => {
             let pacticipant = args.get_one::<String>("pacticipant");
             let version = args.get_one::<String>("version");
-            let ignore = args.get_flag("ignore");
+            let _ignore = args.get_flag("ignore");
             let latest = args.get_flag("latest");
             let branch = args.get_one::<String>("branch");
-            let main_branch = args.get_flag("main-branch");
-            let no_main_branch = args.get_flag("no-main-branch");
-            let skip_main_branch = args.get_flag("skip-main-branch");
+            let _main_branch = args.get_flag("main-branch");
+            let _no_main_branch = args.get_flag("no-main-branch");
+            let _skip_main_branch = args.get_flag("skip-main-branch");
             let to_environment = args.get_one::<String>("to-environment");
             let to = args.get_one::<String>("to");
-            let retry_while_unknown = args.get_one::<String>("retry-while-unknown");
-            let retry_interval = args.get_one::<String>("retry-interval");
-            let dry_run = args.get_flag("dry-run");
-            let no_dry_run = args.get_flag("no-dry-run");
-            let skip_dry_run = args.get_flag("skip-dry-run");
+            let _retry_while_unknown = args.get_one::<String>("retry-while-unknown");
+            let _retry_interval = args.get_one::<String>("retry-interval");
+            let _dry_run = args.get_flag("dry-run");
+            let _no_dry_run = args.get_flag("no-dry-run");
+            let _skip_dry_run = args.get_flag("skip-dry-run");
 
             let broker_url = get_broker_url(args);
             let auth = get_auth(args);
@@ -2298,7 +2308,8 @@ pub fn run(args: &ArgMatches) {
                 number: String,
                 branch: String,
                 branches: Vec<Branch>,
-                branchVersions: Vec<BranchVersion>,
+                #[serde(rename = "branchVersions")]
+                branch_versions: Vec<BranchVersion>,
                 environments: Vec<Environment>,
                 _links: Links,
                 tags: Vec<Tag>,
@@ -2322,9 +2333,11 @@ pub fn run(args: &ArgMatches) {
             struct Environment {
                 uuid: String,
                 name: String,
-                displayName: String,
+                #[serde(rename = "displayName")]
+                display_name: String,
                 production: Option<bool>,
-                createdAt: String,
+                #[serde(rename = "createdAt")]
+                created_at: String,
                 _links: Links,
             }
 
@@ -2362,14 +2375,16 @@ pub fn run(args: &ArgMatches) {
 
             #[derive(Debug, serde::Deserialize)]
             struct Pact {
-                createdAt: String,
+                #[serde(rename = "createdAt")]
+                created_at: String,
                 _links: Links,
             }
 
             #[derive(Debug, serde::Deserialize)]
             struct VerificationResult {
                 success: Option<bool>,
-                verifiedAt: Option<String>,
+                #[serde(rename = "verifiedAt")]
+                verified_at: Option<String>,
                 _links: Links,
             }
 
@@ -2378,7 +2393,8 @@ pub fn run(args: &ArgMatches) {
                 consumer: Consumer,
                 provider: Provider,
                 pact: Pact,
-                verificationResult: Option<VerificationResult>,
+                #[serde(rename = "verificationResult")]
+                verification_result: Option<VerificationResult>,
             }
 
             #[derive(Debug, serde::Deserialize)]
@@ -2473,7 +2489,7 @@ pub fn run(args: &ArgMatches) {
                                         ]);
                                         for matrix_item in data.matrix {
                                             let verification_result = &matrix_item
-                                                .verificationResult
+                                                .verification_result
                                                 .map(|result| {
                                                     result.success.unwrap_or(false).to_string()
                                                 })
@@ -2520,12 +2536,12 @@ pub fn run(args: &ArgMatches) {
                                     }
                                 }
                             }
-                            _ => {
-                                println!("{:?}", res.clone());
-                            }
                             Err(res) => {
                                 println!("no output match provided {:?}", res);
                                 std::process::exit(1);
+                            }
+                            _ => {
+                                println!("{:?}", res.clone());
                             }
                         }
                     }
@@ -2535,63 +2551,63 @@ pub fn run(args: &ArgMatches) {
                 }
             })
         }
-        Some(("can-i-merge", args)) => {
+        Some(("can-i-merge", _args)) => {
             // Handle can-i-merge command
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("create-or-update-pacticipant", args)) => {
+        Some(("create-or-update-pacticipant", _args)) => {
             // Handle create-or-update-pacticipant command
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("describe-pacticipant", args)) => {
+        Some(("describe-pacticipant", _args)) => {
             // Handle describe-pacticipants command
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("list-pacticipants", args)) => {
+        Some(("list-pacticipants", _args)) => {
             // Handle list-pacticipants command
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("create-webhook", args)) => {
+        Some(("create-webhook", _args)) => {
             // Handle create-webhook command
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("create-or-update-webhook", args)) => {
+        Some(("create-or-update-webhook", _args)) => {
             // Handle create-or-update-webhook command
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("test-webhook", args)) => {
+        Some(("test-webhook", _args)) => {
             // Handle test-webhook command
 
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("delete-branch", args)) => {
+        Some(("delete-branch", _args)) => {
             // Handle delete-branch command
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("create-version-tag", args)) => {
+        Some(("create-version-tag", _args)) => {
             // Handle create-version-tag command
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("describe-version", args)) => {
+        Some(("describe-version", _args)) => {
             // Handle describe-version command
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("create-or-update-version", args)) => {
+        Some(("create-or-update-version", _args)) => {
             // Handle create-or-update-version command
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("generate-uuid", args)) => {
+        Some(("generate-uuid", _args)) => {
             println!("{}", uuid::Uuid::new_v4());
         }
         _ => {

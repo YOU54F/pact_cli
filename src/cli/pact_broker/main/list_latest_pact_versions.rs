@@ -1,7 +1,7 @@
-use crate::pact_broker::main::{HALClient, Link, PactBrokerError};
-use comfy_table::{presets::UTF8_FULL, Table};
-use maplit::hashmap;
-use serde_json::Value;
+use crate::pact_broker::main::{HALClient, PactBrokerError};
+
+
+
 
 use super::{
     types::{BrokerDetails, OutputType},
@@ -11,7 +11,7 @@ use super::{
 pub fn list_latest_pact_versions(
     broker_details: &BrokerDetails,
     output_type: OutputType,
-    verbose: bool,
+    _verbose: bool,
 ) -> Result<String, PactBrokerError> {
     // setup client with broker url and credentials
     let broker_url = &broker_details.url;

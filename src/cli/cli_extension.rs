@@ -17,7 +17,7 @@ pub fn add_cli_extensions_subcommand() -> Command {
     // .subcommand(Command::new("upgrade"))   
 }
 
-pub fn main(arg: &ArgMatches) {
+pub fn main(_arg: &ArgMatches) {
     // print!("{:?}", arg.subcommand().unwrap());
     let mut args: Vec<String> = env::args().collect();
     println!("{:?}", args);

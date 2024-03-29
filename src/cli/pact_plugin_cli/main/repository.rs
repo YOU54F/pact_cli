@@ -21,7 +21,7 @@ use pact_plugin_driver::repository::{
 
 use super::install::{fetch_json_from_url, json_to_string};
 use super::repository::ManifestSource::GitHubRelease;
-use super::PluginVersionCommand;
+
 
 pub(crate) const DEFAULT_INDEX: &str = include_str!("../repository.index");
 
@@ -43,7 +43,7 @@ pub(crate) fn handle_command(command: &ArgMatches) -> anyhow::Result<()> {
             args.get_one::<String>("owner").unwrap(),
             args.get_one::<String>("repository").unwrap(),
         ),
-        Some(("yank-version", args)) => {
+        Some(("yank-version", _args)) => {
             todo!()
         }
         Some(("list", args)) => list_entries(args.get_one::<String>("filename").unwrap()),

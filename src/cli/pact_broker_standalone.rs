@@ -128,7 +128,7 @@ pub fn run(args: &ArgMatches) {
 
             // Unpack the binary
             println!("🚀 Unpacking the binary...");
-            let mut status: ExitStatus;
+            let status: ExitStatus;
             if os == "windows" {
                 if Cmd::new("unzip").output().is_ok() {
                     println!("Unpacking {} to {}, tool: {}", broker_archive_path, traveling_pact_broker_home, "unzip");
@@ -228,7 +228,7 @@ pub fn run(args: &ArgMatches) {
         }
     });
         }
-        Some(("stop", args)) => {
+        Some(("stop", _args)) => {
             // Stop the broker
             let pid_file = fs::File::open(&traveling_pact_broker_pid_file_path);
             match pid_file {
@@ -260,7 +260,7 @@ pub fn run(args: &ArgMatches) {
                 }
             }
         }
-        Some(("remove", args)) => {
+        Some(("remove", _args)) => {
             if let Ok(metadata) = std::fs::metadata(traveling_pact_broker_home.clone()) {
                 if metadata.is_dir() {
                     if let Err(err) = std::fs::remove_dir_all(traveling_pact_broker_home) {
@@ -276,7 +276,7 @@ pub fn run(args: &ArgMatches) {
                 );
             }
         }
-        Some(("info", args)) => {
+        Some(("info", _args)) => {
             fn check_directory_exists(directory: &str) -> bool {
                 std::path::Path::new(directory).exists()
             }

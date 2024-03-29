@@ -14,12 +14,12 @@ use std::sync::Mutex;
 use anyhow::anyhow;
 use clap::error::ErrorKind;
 use clap::ArgMatches;
-use clap::{command, Arg, ArgAction, Command};
+use clap::{Arg, ArgAction, Command};
 use lazy_static::*;
 use pact_models::PactSpecification;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
-use tracing::error;
+
 use tracing_core::LevelFilter;
 use tracing_subscriber::fmt::writer::MakeWriterExt;
 use tracing_subscriber::FmtSubscriber;
@@ -123,7 +123,7 @@ lazy_static! {
 }
 
 pub async fn handle_command_args() -> Result<(), i32> {
-    let mut app = setup_args();
+    let app = setup_args();
 
     let matches = app.try_get_matches();
     match matches {

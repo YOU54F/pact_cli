@@ -20,7 +20,7 @@ use tracing_subscriber::FmtSubscriber;
 mod install;
 mod list;
 mod repository;
-use list::{list_plugins, plugin_list};
+use list::{plugin_list};
 
 
 

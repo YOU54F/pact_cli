@@ -1,5 +1,5 @@
 use clap::builder::{NonEmptyStringValueParser, PossibleValuesParser};
-use clap::{command, Arg, ArgAction, ArgGroup, Command};
+use clap::{Arg, ArgAction, ArgGroup, Command};
 use regex::Regex;
 // use crate::cli::pact_verifier_cli::main::get_version_info;
 fn port_value(v: &str) -> Result<u16, String> {

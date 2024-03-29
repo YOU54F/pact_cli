@@ -10,7 +10,7 @@ pub fn add_docker_broker_subcommand() -> Command {
 }
 pub fn run(args: &ArgMatches)  {
     match args.subcommand() {
-        Some(("start", args)) => {
+        Some(("start", _args)) => {
             let output = Cmd::new("docker")
         .arg("run")
         .arg("-d")
@@ -35,7 +35,7 @@ pub fn run(args: &ArgMatches)  {
                 println!("Failed to start Docker container: {}", error_message);
             }
         }
-        Some(("stop", args)) => {
+        Some(("stop", _args)) => {
             let output = Cmd::new("docker")
                 .arg("stop")
                 .arg("pact-broker")
@@ -49,7 +49,7 @@ pub fn run(args: &ArgMatches)  {
                 println!("Failed to stop Docker container: {}", error_message);
             }
         }
-        Some(("remove", args)) => {
+        Some(("remove", _args)) => {
             let output = Cmd::new("docker")
                 .arg("rm")
                 .arg("pact-broker")

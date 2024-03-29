@@ -2,9 +2,9 @@
 
 #![warn(missing_docs)]
 
-use std::borrow::Borrow;
-use std::collections::HashMap;
-use std::f64::consts::E;
+
+
+
 use std::fs::File;
 
 use ansi_term::Colour;
@@ -13,25 +13,23 @@ use base64::engine::general_purpose::STANDARD as Base64;
 use base64::Engine;
 use clap::ArgMatches;
 use log::*;
-use pact_models::message_pact::MessagePact;
-use pact_models::sync_pact::RequestResponsePact;
-use pact_models::v4::pact::V4Pact;
-use pact_models::verify_json::{
-    json_type_of, PactFileVerificationResult, PactJsonVerifier, ResultLevel,
-};
-use pact_plugin_driver::verification;
+
+
+
+
+
 // use pact_verifier::verification_result::VerificationResult;
 use glob::glob;
 use pact_models::http_utils::HttpAuth;
-use pact_models::{http_utils, pact, PactSpecification};
+use pact_models::{http_utils, pact};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use tower::load;
+
 
 use crate::pact_broker::main::utils::{
     get_auth, get_broker_relation, get_broker_url, handle_error,
 };
-use crate::pact_broker::main::{HALClient, PactBrokerError};
+use crate::pact_broker::main::{HALClient};
 
 use super::verification::{display_results, verify_json, VerificationResult};
 
@@ -65,12 +63,12 @@ pub struct Pacticipant {
 #[serde(rename_all = "camelCase")]
 pub struct Links {
     #[serde(rename = "self")]
-    pub self_field: Self_field,
+    pub self_field: SelfField,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Self_field {
+pub struct SelfField {
     pub href: String,
 }
 
@@ -86,12 +84,12 @@ pub struct Version {
 #[serde(rename_all = "camelCase")]
 pub struct Links2 {
     #[serde(rename = "self")]
-    pub self_field: Self_field2,
+    pub self_field: SelfField2,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Self_field2 {
+pub struct SelfField2 {
     pub href: String,
     pub name: String,
     pub title: String,
@@ -231,7 +229,7 @@ pub fn publish_pacts(args: &ArgMatches) -> Result<Value, i32> {
             let mut consumer_app_version = args.get_one::<String>("consumer-app-version");
             let mut branch = args.get_one::<String>("branch");
             let auto_detect_version_properties = args.get_flag("auto-detect-version-properties");
-            let tag_with_git_branch = args.get_flag("tag-with-git-branch");
+            let _tag_with_git_branch = args.get_flag("tag-with-git-branch");
             let build_url = args.get_one::<String>("build-url");
             // let mut git_branch = "";
             // let mut git_commit = "";

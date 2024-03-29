@@ -8,7 +8,7 @@ use clap::error::ErrorKind;
 use clap::ArgMatches;
 use clap_complete::{generate_to, Shell};
 use cli::cli_extension;
-use std::process::Command;
+
 use std::str::FromStr;
 
 pub fn main() {
@@ -68,9 +68,9 @@ fn process_plugin_command(args: &ArgMatches) {
             print!("Error: {:?}", e);
             std::process::exit(1);
         }
-        _ => {
-            std::process::exit(1);
-        }
+        // _ => {
+        //     std::process::exit(1);
+        // }
     }
 }
 
@@ -84,9 +84,9 @@ fn process_mock_command(args: &ArgMatches) {
             Err(e) => {
                 std::process::exit(e);
             }
-            _ => {
-                std::process::exit(1);
-            }
+            // _ => {
+            //     std::process::exit(1);
+            // }
         }
     });
 }
@@ -102,9 +102,9 @@ fn process_stub_command(args: &ArgMatches) {
                 println!("Error: {:?}", e);
                 std::process::exit(3);
             }
-            _ => {
-                std::process::exit(1);
-            }
+            // _ => {
+            //     std::process::exit(1);
+            // }
         }
     });
 }
@@ -251,7 +251,7 @@ fn process_examples_command(args: &ArgMatches) {
         std::process::exit(1);
     }
 
-    fn download_project_with_org(org: &str, project: &str) {
+    fn download_project_with_org(_org: &str, project: &str) {
         println!("Downloading project {}", project);
         // Implement the logic to download the project with the specified organization here
         println!("Downloaded project {}", project);
@@ -324,19 +324,19 @@ fn process_project_command(args: &ArgMatches) {
                 }
             }
         }
-        Some(("new", args)) => {
+        Some(("new", _args)) => {
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("link", args)) => {
+        Some(("link", _args)) => {
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("issue", args)) => {
+        Some(("issue", _args)) => {
             println!("Unimplemented");
             std::process::exit(1);
         }
-        Some(("docs", args)) => {
+        Some(("docs", _args)) => {
             println!("Unimplemented");
             std::process::exit(1);
         }

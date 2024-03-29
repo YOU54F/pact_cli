@@ -89,7 +89,7 @@ use std::process::ExitCode;
 use std::str::FromStr;
 
 use clap::error::ErrorKind;
-use clap::{command, crate_version, Arg, ArgAction, ArgMatches, Command};
+use clap::{crate_version, Arg, ArgAction, ArgMatches, Command};
 use loading::load_pacts;
 use pact_models::prelude::*;
 use regex::Regex;
