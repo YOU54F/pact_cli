@@ -26,7 +26,7 @@ jobs:
             shell: cmd
       fail-fast: false
     steps:
-    - uses: actions/checkout@v3 # required for local pact and test command script
+    - uses: actions/checkout@v4 # required for local pact and test command script
     - name: Download
       if: matrix.os == 'ubuntu-latest'
       shell: bash
