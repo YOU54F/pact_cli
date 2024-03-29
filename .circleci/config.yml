@@ -28,4 +28,5 @@ jobs:
       - run:
           name: run bin
           command: |
+            $env:PATH += ";$(pwd)/pact/bin"
             pact_cli --help
