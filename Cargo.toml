@@ -83,12 +83,6 @@ tempfile = "3.8.1"
 test-log = "0.2.14"
 trycmd = "0.15.0"
 
-[patch.crates-io]
-# https://github.com/stanislav-tkach/os_info/issues/370
-os_info = { git = 'https://github.com/you54f/os_info.git' }
-# indexmap = { version = "1.9.3", features = ["std"], git = 'https://github.com/indexmap-rs/indexmap.git', tag='1.9.3'}
-# os_info = { git = 'https://github.com/yonasBSD/os_info.git', branch='yonas-patch-1' }
-
 [profile.release]
 strip = true      # Automatically strip symbols from the binary.
 opt-level = "z"   # Optimize for size.
